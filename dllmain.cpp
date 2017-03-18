@@ -392,10 +392,25 @@ void InitInstance()
 		DWORD lastErr = GetLastError();
 		if (lastErr == ERROR_ALREADY_EXISTS) {
 			//CloseHandle(mutex);
+			char token_censored[33];
+			strncpy(token_censored, g_szToken, 32);
+			memset(token_censored + 32, 0, 1);
+			memset(token_censored+4, '*', 24);
 			char NotificationPlayerText[120];
-			sprintf(NotificationPlayerText, "Player Login Session %s already exists!", g_szToken);
+			sprintf(NotificationPlayerText, "Player Login Session %s already exists!\nOld session has been invalidated!", token_censored);
 			addDebugText(NotificationPlayerText);
-			MessageBoxA(NULL, NotificationPlayerText, "LOGIN FAIL WARNING!", MB_OK);
+			MessageBoxA(NULL, NotificationPlayerText, "LOGIN OVERRIDDEN WARNING!", MB_OK);
+		}
+		wchar_t mutexName2[255];
+		swprintf(mutexName2, L"Halo2BasePort#%d", g_port);
+		HANDLE mutex2 = CreateMutex(0, TRUE, mutexName2);
+		DWORD lastErr2 = GetLastError();
+		if (lastErr2 == ERROR_ALREADY_EXISTS) {
+			//CloseHandle(mutex);
+			char NotificationPlayerText[120];
+			sprintf(NotificationPlayerText, "Base port %d is already bound to!\nExpect MP to not work!", g_port);
+			addDebugText(NotificationPlayerText);
+			MessageBoxA(NULL, NotificationPlayerText, "BASE PORT BIND WARNING!", MB_OK);
 		}
 
 		if (g_debug)
