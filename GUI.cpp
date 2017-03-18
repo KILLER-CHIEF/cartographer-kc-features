@@ -11,6 +11,7 @@
 #include "H2MOD.h"
 #include "xliveless.h"
 #include "cartographer_main.hpp"
+#include "GlitchyScripts.h"
 
 
 
@@ -118,10 +119,14 @@ void GUI::Initialize()
 	initFontsIfRequired();
 }
 
+bool once1 = false;
 // #5001
-
 int WINAPI XLiveInput(XLIVE_INPUT_INFO* pPii)
 {
+	if (!once1) {
+		halo2hWnd = pPii->hWnd;
+		once1 = true;
+	}
 	return 1;
 }
 
@@ -327,6 +332,44 @@ int WINAPI XLiveRender()
 				drawText(0, 15, COLOR_GREEN, ServerStatus, smallFont);
 			else if (MasterState == 3)
 				drawText(0, 15, COLOR_RED, ServerStatus, smallFont);
+		}
+
+		/*D3DVIEWPORT9 pViewport;
+		pDevice->GetViewport(&pViewport);
+		//pViewport.X
+
+		D3DDEVICE_CREATION_PARAMETERS cparams;
+		pDevice->GetCreationParameters(&cparams);
+		RECT gameWindowRect;
+		GetWindowRect(cparams.hFocusWindow, &gameWindowRect);
+		RECT gameWindowInnerRect;
+		GetClientRect(cparams.hFocusWindow, &gameWindowInnerRect);
+
+		int gameWindowWidth = gameWindowRect.right - gameWindowRect.left - GetSystemMetrics(SM_CXSIZEFRAME);
+		int gameWindowHeight = gameWindowRect.bottom - gameWindowRect.top;
+
+		POINT point;
+		GetCursorPos(&point);
+
+		//int windowX = ;
+		//int windowY = ;
+
+		//int casting bullshit is causing box to render too low... ?
+		int mousePosX = int(point.x) - int(gameWindowRect.left) - (GetSystemMetrics(SM_CXSIZEFRAME) / 2);
+		int mousePosY = int(point.y) - int(gameWindowRect.top) - GetSystemMetrics(SM_CYCAPTION) - (GetSystemMetrics(SM_CYSIZEFRAME) / 2);
+
+		int centerWidth = (gameWindowWidth / 2);
+		int centerHeight = (gameWindowHeight / 2);
+		drawRect(centerWidth - 2, centerHeight - 10, 4, 20, COLOR_GOLD);
+		drawRect(centerWidth - 10, centerHeight - 2, 20, 4, COLOR_GOLD);
+
+		drawRect(mousePosX + 1, mousePosY, 10, 10, COLOR_BLUE);*/
+
+		for (int i = 0; i < getDebugTextArrayMaxLen(); i++) {
+			const char* text = getDebugText(i);
+			if (strlen(text) > 0) {
+				drawText(10, 40 + (i * 14), COLOR_WHITE, text, smallFont);
+			}
 		}
 
 		if (fps_enable)

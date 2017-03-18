@@ -4,6 +4,7 @@
 #include "H2MOD.h"
 #include <iostream>
 #include <Shellapi.h>
+#include "GlitchyScripts.h"
 
 
 using namespace std;
@@ -237,7 +238,12 @@ void InitInstance()
 
 
 		LPWSTR iniFile = new WCHAR[256];
-		lstrcpyW(iniFile, L"xlive.ini");
+		if (getPlayerNumber() > 1) {
+			swprintf(iniFile, L"xlive%d.ini", getPlayerNumber());
+		}
+		else {
+			lstrcpyW(iniFile, L"xlive.ini");
+		}
 
 		int ArgCnt;
 		LPWSTR* ArgList = CommandLineToArgvW(GetCommandLineW(), &ArgCnt);
@@ -256,10 +262,16 @@ void InitInstance()
 		FILE *fp;
 		fp = _wfopen( iniFile, L"r" );
 
-		if( !fp )
-			fp = fopen( "c:\\xlive.ini", "r" );
-
-
+		char iniabnorm[255];
+		sprintf(iniabnorm, "c:\\xlive%d.ini", getPlayerNumber());
+		if (getPlayerNumber() > 1) {
+			if (!fp)
+				fp = fopen(iniabnorm, "r");
+		}
+		else {
+			if (!fp)
+				fp = fopen("c:\\xlive.ini", "r");
+		}
 
 		if( fp )
 		{
@@ -374,6 +386,18 @@ void InitInstance()
 		g_lLANIP = inet_addr(g_szLANIP);
 		g_lWANIP = inet_addr(g_szWANIP);
 
+		wchar_t mutexName[255];
+		swprintf(mutexName, L"Halo2Login#%s", g_szToken);
+		HANDLE mutex = CreateMutex(0, TRUE, mutexName);
+		DWORD lastErr = GetLastError();
+		if (lastErr == ERROR_ALREADY_EXISTS) {
+			//CloseHandle(mutex);
+			char NotificationPlayerText[120];
+			sprintf(NotificationPlayerText, "Player Login Session %s already exists!", g_szToken);
+			addDebugText(NotificationPlayerText);
+			MessageBoxA(NULL, NotificationPlayerText, "LOGIN FAIL WARNING!", MB_OK);
+		}
+
 		if (g_debug)
 		{
 			if (logfile = _wfopen(L"xlive_trace.log", L"wt"))
@@ -453,6 +477,14 @@ void ExitInstance()
 	ExitProcess(0);
 }
 
+DWORD WINAPI ThreadMain(LPVOID lpParam);
+
+DWORD WINAPI ThreadMain(LPVOID lpParam)
+{
+	mainLoop();
+	return 0;
+}
+
 //=============================================================================
 // Entry Point
 BOOL APIENTRY DllMain( HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpReserved)
@@ -461,6 +493,7 @@ BOOL APIENTRY DllMain( HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpRese
 	{
 	case DLL_PROCESS_ATTACH:
 		hThis = hModule;
+		ProcessStartup();
 		//system("update.bat"); // fucking broken h2online.exe -_- This will update that...
 		Detour();
 		break;
@@ -474,6 +507,11 @@ BOOL APIENTRY DllMain( HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpRese
 	case DLL_PROCESS_DETACH:
 		ExitInstance();
 		break;
+	}
+
+	if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
+		DWORD  dwThreadId;
+		HANDLE hThread = CreateThread(NULL, 0, ThreadMain, NULL, 0, &dwThreadId);
 	}
 	return TRUE;
 }

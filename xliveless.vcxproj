@@ -164,6 +164,7 @@
       <InlineFunctionExpansion Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Default</InlineFunctionExpansion>
     </ClCompile>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="GlitchyScripts.cpp" />
     <ClCompile Include="Globals.cpp" />
     <ClCompile Include="GUI.cpp" />
     <ClCompile Include="H2ChatBoxCommands.cpp" />
@@ -186,6 +187,7 @@
     <ClInclude Include="cartographer_main.hpp" />
     <ClInclude Include="CUser.h" />
     <ClInclude Include="Detour.h" />
+    <ClInclude Include="GlitchyScripts.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="H2ChatBoxCommands.h" />
