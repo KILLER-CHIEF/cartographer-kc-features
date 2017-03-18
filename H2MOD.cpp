@@ -1518,7 +1518,7 @@ void H2MOD::Initialize()
 
 	float fovRadians = (float)((field_of_view * 3.14159265f) / 180);
 	*(float*)(this->GetBase() + 0x41D984) = fovRadians; //player
-	*(float*)(this->GetBase() + 0x413780) = fovRadians * 0.8435f; //vehicle
+	//*(float*)(this->GetBase() + 0x413780) = fovRadians * 0.8435f; //vehicle
 	
 	h2mod->ApplyHooks();
 }
