@@ -13,6 +13,7 @@
 #include "H2CodezMain.h"
 #include "H2hooks.h"
 #include "Cooperative.h"
+#include "H2MOD.h"
 
 
 DWORD g_threadID;
@@ -55,8 +56,129 @@ void DisEngageHOOKS()
 }
 
 
+void H2CodezLoop() {
+#pragma region HotKeys
 
-//DWORD WINAPI H2CodezInitialize(LPVOID)
+	//Do here Like Checks,Hotkeys,etc..
+	unsigned int datum;
+
+	if (GetAsyncKeyState(VK_F5) & 1)
+	{
+
+		InitializeCoop();
+
+
+	}
+	if (GetAsyncKeyState(VK_F10) & 1)
+	{
+		/*
+		pLog.WriteLog("Coop:: All Players Dead..Spawning Them.");
+		Sleep(1500);
+		for (int i = 1;i < *(BYTE*)Coop.PlayerCount;i++)
+		{
+		call_SpawnPlayer(i);
+		}*/
+		*(BYTE*)Coop.GameEngine = 2;
+		char(*PlayerEffects)();
+		PlayerEffects = (char(*)(void))((char*)game.GetBase() + 0xA3E39);
+		PlayerEffects();
+		*(BYTE*)Coop.GameEngine = 1;
+	}
+
+	if (GetAsyncKeyState(VK_NEXT) & 1)
+	{
+		//50A398
+		pLog.WriteLog("Party Privacy : InviteOnly ");
+		*(int*)((char*)game.GetBase() + 0x50A398) = 2;
+
+
+
+	}
+	if (GetAsyncKeyState(VK_PRIOR) & 1)
+	{
+		pLog.WriteLog("Party Privacy : Open ");
+		*(int*)((char*)game.GetBase() + 0x50A398) = 0;
+
+
+	}
+	if (GetAsyncKeyState(VK_HOME) & 1)
+	{
+
+
+
+
+		//datum= halo.SpawnObjAtCamera(0xEEE30D6D);
+		if (*(int*)0x30004D04 != -1)
+		{
+			datum = *(int*)0x30004D04;
+			game.call_AssignObjDatumToPlayer(0, datum);
+		}
+
+
+	}
+
+	if (Coop.Host_L)
+	{
+		if (*(BYTE*)Coop.PlayerCount>1)
+		{
+			Coop.Begin = TRUE;
+			*(BYTE*)Coop.CoopSpawns = 1;
+		}
+
+
+
+		if (Coop.Begin)
+		{
+			HostFixes();
+			int IsGameLost = 0x30004B64;
+			*(BYTE*)Coop.PauseGame = 0;
+			if (*(BYTE*)IsGameLost == 1)
+			{
+
+				if (GetPlayersAlive() == 0)
+				{
+					pLog.WriteLog("Coop:: All Players Dead..Spawning Them.");
+					Sleep(1500);
+					for (int i = 0; i < *(BYTE*)Coop.PlayerCount; i++)
+					{
+						call_SpawnPlayer(i);
+					}
+
+
+
+				}
+
+
+			}
+		}
+	}
+#pragma endregion 
+}
+
+class later
+{
+public:
+	template <class callable, class... arguments>
+	later(int after, bool async, callable&& f, arguments&&... args)
+	{
+		std::function<typename std::result_of<callable(arguments...)>::type()> task(std::bind(std::forward<callable>(f), std::forward<arguments>(args)...));
+
+		if (async)
+		{
+			std::thread([after, task]() {
+				std::this_thread::sleep_for(std::chrono::milliseconds(after));
+				task();
+			}).detach();
+		}
+		else
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(after));
+			task();
+		}
+	}
+
+};
+
 void H2CodezInitialize()
 {
 
@@ -64,117 +186,12 @@ void H2CodezInitialize()
 	halo.Start();
 	APPLYHOOKS();
 
-
 #pragma region InfiniteLoop	
-	//Do here Like Checks,Hotkeys,etc..
-#pragma region HotKeys
-
-	unsigned int datum;
 	while (true)
 	{
-		if (GetAsyncKeyState(VK_F5) & 1)
-		{
-
-			InitializeCoop();
-
-
-
-
-		}
-		if (GetAsyncKeyState(VK_F10) & 1)
-		{
-			/*
-			pLog.WriteLog("Coop:: All Players Dead..Spawning Them.");
-			Sleep(1500);
-			for (int i = 1;i < *(BYTE*)Coop.PlayerCount;i++)
-			{
-			call_SpawnPlayer(i);
-			}*/
-			*(BYTE*)Coop.GameEngine = 2;
-			char(*PlayerEffects)();
-			PlayerEffects = (char(*)(void))((char*)game.GetBase() + 0xA3E39);
-			PlayerEffects();
-			*(BYTE*)Coop.GameEngine = 1;
-		}
-
-		if (GetAsyncKeyState(VK_NEXT) & 1)
-		{
-			//50A398
-			pLog.WriteLog("Party Privacy : InviteOnly ");
-			*(int*)((char*)game.GetBase() + 0x50A398) = 2;
-
-
-
-		}
-		if (GetAsyncKeyState(VK_PRIOR) & 1)
-		{
-			pLog.WriteLog("Party Privacy : Open ");
-			*(int*)((char*)game.GetBase() + 0x50A398) = 0;
-
-
-		}
-		if (GetAsyncKeyState(VK_HOME) & 1)
-		{
-
-
-
-
-			//datum= halo.SpawnObjAtCamera(0xEEE30D6D);
-			if (*(int*)0x30004D04 != -1)
-			{
-				datum = *(int*)0x30004D04;
-				game.call_AssignObjDatumToPlayer(0, datum);
-			}
-
-
-		}
-
-		if (Coop.Host_L)
-		{
-			if (*(BYTE*)Coop.PlayerCount>1)
-			{
-				Coop.Begin = TRUE;
-				*(BYTE*)Coop.CoopSpawns = 1;
-			}
-
-
-
-			if (Coop.Begin)
-			{
-				HostFixes();
-				int IsGameLost = 0x30004B64;
-				*(BYTE*)Coop.PauseGame = 0;
-				if (*(BYTE*)IsGameLost == 1)
-				{
-
-					if (GetPlayersAlive() == 0)
-					{
-						pLog.WriteLog("Coop:: All Players Dead..Spawning Them.");
-						Sleep(1500);
-						for (int i = 0; i < *(BYTE*)Coop.PlayerCount; i++)
-						{
-							call_SpawnPlayer(i);
-						}
-
-
-
-					}
-
-
-				}
-			}
-
-
-
-		}
-
-
-
-
+		later later_test1(1, false, &H2CodezLoop);
 	}
 #pragma endregion 
-#pragma endregion 
-
 }
 
 

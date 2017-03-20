@@ -179,8 +179,41 @@ char* getDebugText(int ordered_index) {
 }
 bool halo2WindowExists = false;
 
+class later
+{
+public:
+	template <class callable, class... arguments>
+	later(int after, bool async, callable&& f, arguments&&... args)
+	{
+		std::function<typename std::result_of<callable(arguments...)>::type()> task(std::bind(std::forward<callable>(f), std::forward<arguments>(args)...));
+
+		if (async)
+		{
+			std::thread([after, task]() {
+				std::this_thread::sleep_for(std::chrono::milliseconds(after));
+				task();
+			}).detach();
+		}
+		else
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(after));
+			task();
+		}
+	}
+
+};
+
+void mainLoop2();
+
 void mainLoop() {
 	while (1) {
+		later later_test1(1, false, &mainLoop2);
+	}
+}
+
+void mainLoop2() {
+	
+	if (1) {
 		if (!halo2WindowExists && halo2hWnd != NULL) {
 			halo2WindowExists = true;
 			if (getPlayerNumber() > 1) {
@@ -193,16 +226,16 @@ void mainLoop() {
 			SetWindowLong(halo2hWnd, GWL_STYLE, GetWindowLong(halo2hWnd, GWL_STYLE) | WS_SIZEBOX); // | WS_THICKFRAME
 		}
 
-		if (GetAsyncKeyState(VK_F1) & 0x1) {
+		if (GetAsyncKeyState(VK_F3) & 0x1) {
 			addDebugText("------------------------------");
-			addDebugText("Page Dn - Set Lobby Privacy INVITE ONLY.");
-			addDebugText("Page Up - Set Lobby Privacy OPEN.");
+			addDebugText("Page Dn - Set Lobby Privacy to INVITE ONLY.");
+			addDebugText("Page Up - Set Lobby Privacy to OPEN.");
 			addDebugText("Home    - ???");
-			addDebugText("F10     - Coop > Fix cutscene screen problem?");
-			addDebugText("F8      - ???");
-			addDebugText("F5      - Toggle Online Coop Mode.");
+			addDebugText("F10     - Fix in-game player camera from a white/black bad cutscene.");
+			//addDebugText("F8      - ???");
+			addDebugText("F5      - Toggle online Coop mode.");
+			addDebugText("F3      - Print and show this help text.");
 			addDebugText("F2      - Toggle hiding this text display.");
-			addDebugText("F1      - Help.");
 			addDebugText("Options:");
 			addDebugText("------------------------------");
 			setDebugTextDisplay(true);
@@ -213,7 +246,7 @@ void mainLoop() {
 
 		//& 0x8000 is pressed
 		//& 0x1 Key just transitioned from released to pressed.
-		if (GetAsyncKeyState(VK_F8) & 0x1) {
+		/*if (GetAsyncKeyState(VK_F8) & 0x1) {
 			
 			int msgboxID = MessageBox(NULL,
 				L"Be A Player",
@@ -231,8 +264,9 @@ void mainLoop() {
 			//char MsgBox3[255];
 			//sprintf(MsgBox3, "do it");
 			//MessageBoxA(NULL, MsgBox3, "yah!", MB_OK);
-		}
+		}*/
 	}
+	
 }
 
 int language_code = -1;
