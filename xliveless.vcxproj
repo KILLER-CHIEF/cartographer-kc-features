@@ -158,22 +158,27 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cartographer_main.cpp" />
+    <ClCompile Include="Cooperative.cpp" />
     <ClCompile Include="CUser.cpp" />
     <ClCompile Include="Detour.cpp">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Disabled</Optimization>
       <InlineFunctionExpansion Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Default</InlineFunctionExpansion>
     </ClCompile>
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Forge.cpp" />
     <ClCompile Include="GlitchyScripts.cpp" />
     <ClCompile Include="Globals.cpp" />
     <ClCompile Include="GUI.cpp" />
     <ClCompile Include="H2ChatBoxCommands.cpp" />
+    <ClCompile Include="H2Codez.cpp" />
+    <ClCompile Include="H2CodezMain.cpp" />
     <ClCompile Include="H2MOD.cpp" />
     <ClCompile Include="h2mod.pb.cc" />
     <ClCompile Include="H2MOD_GunGame.cpp" />
     <ClCompile Include="H2MOD_Halo2Final.cpp" />
     <ClCompile Include="H2MOD_MapManager.cpp" />
     <ClCompile Include="Hook.cpp" />
+    <ClCompile Include="Logs.cpp" />
     <ClCompile Include="miniz.c">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
     </ClCompile>
@@ -185,12 +190,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cartographer_main.hpp" />
+    <ClInclude Include="Cooperative.h" />
     <ClInclude Include="CUser.h" />
     <ClInclude Include="Detour.h" />
+    <ClInclude Include="Forge.h" />
     <ClInclude Include="GlitchyScripts.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="H2ChatBoxCommands.h" />
+    <ClInclude Include="H2Codez.h" />
+    <ClInclude Include="H2CodezMain.h" />
+    <ClInclude Include="H2Hooks.h" />
     <ClInclude Include="H2MOD.h" />
     <ClInclude Include="h2mod.pb.h" />
     <ClInclude Include="H2MOD_GunGame.h" />
@@ -199,6 +209,7 @@
     <ClInclude Include="H2MOD_MapManager.h" />
     <ClInclude Include="H2MOD_Sounds.h" />
     <ClInclude Include="Hook.h" />
+    <ClInclude Include="Logs.h" />
     <ClInclude Include="Network.h" />
     <ClInclude Include="packet.pb.h" />
     <ClInclude Include="resource.h" />

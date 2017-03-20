@@ -43,6 +43,9 @@
     <Filter Include="Source Files\H2MOD\GUI\Source Files\Direct3D9">
       <UniqueIdentifier>{933eb738-ef3b-4896-a991-645018ac135b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\H2Codez">
+      <UniqueIdentifier>{a23f6a44-a740-4087-82bf-189976d39d79}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -104,6 +107,21 @@
     </ClCompile>
     <ClCompile Include="GlitchyScripts.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Cooperative.cpp">
+      <Filter>Source Files\H2Codez</Filter>
+    </ClCompile>
+    <ClCompile Include="Forge.cpp">
+      <Filter>Source Files\H2Codez</Filter>
+    </ClCompile>
+    <ClCompile Include="H2Codez.cpp">
+      <Filter>Source Files\H2Codez</Filter>
+    </ClCompile>
+    <ClCompile Include="Logs.cpp">
+      <Filter>Source Files\H2Codez</Filter>
+    </ClCompile>
+    <ClCompile Include="H2CodezMain.cpp">
+      <Filter>Source Files\H2Codez</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -169,6 +187,24 @@
     </ClInclude>
     <ClInclude Include="GlitchyScripts.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Cooperative.h">
+      <Filter>Source Files\H2Codez</Filter>
+    </ClInclude>
+    <ClInclude Include="Forge.h">
+      <Filter>Source Files\H2Codez</Filter>
+    </ClInclude>
+    <ClInclude Include="H2Codez.h">
+      <Filter>Source Files\H2Codez</Filter>
+    </ClInclude>
+    <ClInclude Include="H2Hooks.h">
+      <Filter>Source Files\H2Codez</Filter>
+    </ClInclude>
+    <ClInclude Include="Logs.h">
+      <Filter>Source Files\H2Codez</Filter>
+    </ClInclude>
+    <ClInclude Include="H2CodezMain.h">
+      <Filter>Source Files\H2Codez</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

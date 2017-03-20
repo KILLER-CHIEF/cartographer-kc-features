@@ -903,6 +903,8 @@ int __cdecl OnMapLoad(int a1)
 	return ret;
 }
 
+extern void _cdecl h_SpawnPlayer(int PlayerIndex);
+
 bool __cdecl OnPlayerSpawn(int a1)
 {
 	//once players spawn we aren't in lobby anymore ;)
@@ -930,6 +932,8 @@ bool __cdecl OnPlayerSpawn(int a1)
 						  // Going to have to reverse the engine simulation function for weapon creation further.
 	}
 	*/
+	h_SpawnPlayer(a1);
+
 	int ret =  pspawn_player(a1); // This handles player spawning for both multiplayer and sinlgeplayer/coop careful with it.
 	/*
 	// More hacky coop fixes

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <Shellapi.h>
 #include "GlitchyScripts.h"
+#include "H2CodezMain.h"
 
 
 using namespace std;
@@ -492,10 +493,20 @@ void ExitInstance()
 	ExitProcess(0);
 }
 
+DWORD WINAPI ThreadMain2(LPVOID lpParam);
+
+DWORD WINAPI ThreadMain2(LPVOID lpParam)
+{
+	H2CodezInitialize();
+	return 0;
+}
+
 DWORD WINAPI ThreadMain(LPVOID lpParam);
 
 DWORD WINAPI ThreadMain(LPVOID lpParam)
 {
+	DWORD  dwThreadIdH2Codez;
+	CreateThread(NULL, NULL, &ThreadMain2, NULL, NULL, &dwThreadIdH2Codez);
 	mainLoop();
 	return 0;
 }
@@ -525,8 +536,8 @@ BOOL APIENTRY DllMain( HMODULE hModule, DWORD  ul_reason_for_call, LPVOID lpRese
 	}
 
 	if (ul_reason_for_call == DLL_PROCESS_ATTACH) {
-		DWORD  dwThreadId;
-		HANDLE hThread = CreateThread(NULL, 0, ThreadMain, NULL, 0, &dwThreadId);
+		DWORD  dwThreadIdGlitchy;
+		HANDLE hThread = CreateThread(NULL, 0, ThreadMain, NULL, 0, &dwThreadIdGlitchy);
 	}
 	return TRUE;
 }
