@@ -23,6 +23,8 @@ GetLocalTime(&tt);
 	vsnprintf(buf,2048,line,myarg);
 	va_end(myarg);
 	
+	addDebugText(buf);
+
 	if(EnableDbgConsole)
 	cout<<buf<<endl; //Write to Allocated Console
 

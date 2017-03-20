@@ -22,6 +22,15 @@ int playerNumber = 0;
 char** DebugStr;
 int DebugTextArrayLenMax = 60;
 int DebugTextArrayPos = 0;
+bool DebugTextDisplay = false;
+
+void setDebugTextDisplay(bool setOn) {
+	DebugTextDisplay = setOn;
+}
+
+bool getDebugTextDisplay() {
+	return DebugTextDisplay;
+}
 
 const wchar_t* xinputdllPath = { L"xinput/p00/xinput9_1_0.dll" };
 
@@ -149,6 +158,7 @@ void addDebugText(char* text) {
 
 	free(DebugStr[DebugTextArrayPos]);
 	DebugStr[DebugTextArrayPos] = (char*)malloc(sizeof(char) * strlen(text) + 1);
+	
 	strncpy(DebugStr[DebugTextArrayPos], text, strlen(text) + 1);
 }
 
@@ -183,9 +193,27 @@ void mainLoop() {
 			SetWindowLong(halo2hWnd, GWL_STYLE, GetWindowLong(halo2hWnd, GWL_STYLE) | WS_SIZEBOX); // | WS_THICKFRAME
 		}
 
+		if (GetAsyncKeyState(VK_F1) & 0x1) {
+			addDebugText("------------------------------");
+			addDebugText("Page Dn - Set Lobby Privacy INVITE ONLY.");
+			addDebugText("Page Up - Set Lobby Privacy OPEN.");
+			addDebugText("Home    - ???");
+			addDebugText("F10     - Coop > Fix cutscene screen problem?");
+			addDebugText("F8      - ???");
+			addDebugText("F5      - Toggle Online Coop Mode.");
+			addDebugText("F2      - Toggle hiding this text display.");
+			addDebugText("F1      - Help.");
+			addDebugText("Options:");
+			addDebugText("------------------------------");
+			setDebugTextDisplay(true);
+		}
+		if (GetAsyncKeyState(VK_F2) & 0x1) {
+			setDebugTextDisplay(!getDebugTextDisplay());
+		}
+
 		//& 0x8000 is pressed
 		//& 0x1 Key just transitioned from released to pressed.
-		if (GetAsyncKeyState(0x77) & 0x1) {
+		if (GetAsyncKeyState(VK_F8) & 0x1) {
 			
 			int msgboxID = MessageBox(NULL,
 				L"Be A Player",

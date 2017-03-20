@@ -13,3 +13,6 @@ char* getDebugText(int ordered_index);
 
 extern HWND halo2hWnd;
 
+void setDebugTextDisplay(bool setOn);
+bool getDebugTextDisplay();
+

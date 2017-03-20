@@ -31,7 +31,7 @@
 #include "Detours/detours.h"
 #include "Logs.h"
 #include "Forge.h"
-
+#include "GlitchyScripts.h"
 
 
 

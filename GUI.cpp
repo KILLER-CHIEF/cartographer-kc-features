@@ -365,10 +365,12 @@ int WINAPI XLiveRender()
 
 		drawRect(mousePosX + 1, mousePosY, 10, 10, COLOR_BLUE);*/
 
-		for (int i = 0; i < getDebugTextArrayMaxLen(); i++) {
-			const char* text = getDebugText(i);
-			if (strlen(text) > 0) {
-				drawText(10, 40 + (i * 14), COLOR_WHITE, text, smallFont);
+		if (getDebugTextDisplay()) {
+			for (int i = 0; i < getDebugTextArrayMaxLen(); i++) {
+				const char* text = getDebugText(i);
+				if (strlen(text) > 0) {
+					drawText(10, 40 + (i * 14), COLOR_WHITE, text, smallFont);
+				}
 			}
 		}
 
