@@ -111,9 +111,6 @@
     <ClCompile Include="Cooperative.cpp">
       <Filter>Source Files\H2Codez</Filter>
     </ClCompile>
-    <ClCompile Include="Forge.cpp">
-      <Filter>Source Files\H2Codez</Filter>
-    </ClCompile>
     <ClCompile Include="H2Codez.cpp">
       <Filter>Source Files\H2Codez</Filter>
     </ClCompile>
@@ -191,13 +188,7 @@
     <ClInclude Include="Cooperative.h">
       <Filter>Source Files\H2Codez</Filter>
     </ClInclude>
-    <ClInclude Include="Forge.h">
-      <Filter>Source Files\H2Codez</Filter>
-    </ClInclude>
     <ClInclude Include="H2Codez.h">
-      <Filter>Source Files\H2Codez</Filter>
-    </ClInclude>
-    <ClInclude Include="H2Hooks.h">
       <Filter>Source Files\H2Codez</Filter>
     </ClInclude>
     <ClInclude Include="Logs.h">

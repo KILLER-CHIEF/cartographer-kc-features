@@ -50,40 +50,6 @@ int H2class::get_unit_datum_from_player_index(int pIndex)
 }
 
 
-char __cdecl H2class::PlayerShieldExplosion(int Unit)
-{
-	typedef int(__cdecl * gg)(int);
-	gg pallc = (gg)(((char*)game.GetBase()) + 0x17704C);
-	return pallc(Unit);
-}
-
-
-
-
-int __stdcall H2class::MPMapSelect(int* a1)
-{
-	pLog.WriteLog("call_MP_MAPSELECT(%08X)", a1);
-	typedef int(__stdcall *MapSelect)(int*);
-	MapSelect pMapSelect = (MapSelect)(((char*)game.GetBase()) + 0x24F9A1);
-	return pMapSelect(a1);
-}
-int __cdecl  H2class::call_ShowSettingsScreen(int a1)
-{
-	pLog.WriteLog("call_SettingsScreen(%08X)", a1);
-	typedef int(__cdecl *sett)(int);
-	sett psett = (sett)(((char*)game.GetBase()) + 0xB071);
-	return psett(a1);
-}
-
-
-
-int __cdecl H2class::ShowSquadSettings(int* a1)
-{
-	pLog.WriteLog("call_ShowSquadSettings(%X(%X))", a1, *(int*)a1);
-	typedef int(__cdecl * SquadSettings)(int*);
-	SquadSettings psquadsettings = (SquadSettings)(((char*)game.GetBase()) + 0x24FE89);
-	return psquadsettings(a1);
-}
 
 unsigned __int16 H2class::SpawnObj(int datumindex)
 {
@@ -161,8 +127,7 @@ void H2class::GivePlayerWeapon(int PlayerIndex, int WeaponId)
 
 		game.call_object_placement_data_new(nObject, WeaponId, unit_datum, 0);
 
-		int object_index = game.call_Object_create(nObject);
-		pLog.WriteLog("Object Index : %X", object_index);
+		int object_index = game.call_Object_create(nObject);		
 
 		game.call_unit_reset_equipment(unit_datum);
 
@@ -172,43 +137,7 @@ void H2class::GivePlayerWeapon(int PlayerIndex, int WeaponId)
 
 
 }
-void H2class::CameraMod(int Type)
-{
-	int cam=(int)((char*)game.GetBase()+0x4a84b0);
-	int height=(int)((char*)game.GetBase()+0x4A84CC);
-	switch(Type)
-	{
-	case 1:
-		*(int*)cam=0x001FD7E1;//FP
-		*(float*)height=0.0f;
-		break;
-	case 2:
-		*(int*)cam=0x001C8039;//Static
-		break;
-	case 3:
-		*(int*)cam=0x001FD144;//TP
-		*(float*)height=1.0f;
-		break;
-	default:
-		*(int*)cam=0x001FD7E1;
-		
 
-	}
-	
-}
-
-char __cdecl H2class::SetBipedStateRelated(int UnitDatum)
-{
-	typedef char(__cdecl *get_object)(int);
-	get_object pget_object = (get_object)(((char*)game.GetBase()) + 0x157078);
-	return pget_object(UnitDatum);
-}
-char __thiscall H2class::SetBipedState(int PlayerStateAddr, char PlayerState)
-{
-	typedef char(__thiscall *get_object)(int,char);
-	get_object pget_object = (get_object)(((char*)game.GetBase()) + 0xC854D);
-	return pget_object(PlayerStateAddr,PlayerState);
-}
 
 #pragma endregion
 
@@ -281,7 +210,7 @@ bool __cdecl Game:: call_assign_equipment_to_unit(int unit, int object_index, sh
 signed int __cdecl Game:: call_Object_create(void * objplacementdata)
 {
 
-	//pLog.WriteLog("call_Object_create(0x%08X)", objplacementdata);
+
 	typedef signed int (__cdecl *Functionaddr)(void*); 
 	Functionaddr pObject_create = (Functionaddr)(((char*)game.GetBase())+0x136CA7);
 	return pObject_create(objplacementdata);
@@ -290,20 +219,13 @@ signed int __cdecl Game:: call_Object_create(void * objplacementdata)
 
 int __cdecl Game:: call_object_placement_data_new(void* s_object_placement_data, int object_definition_index, int object_owner, int unk)
 {
-	//pLog.WriteLog("call_object_placement_data_new(%08X, %08X, %08X , %08X)", s_object_placement_data,object_definition_index,object_owner,unk);
+	
 	typedef int(__cdecl *object_placement_data_new)(void*, int, int, int);
 	object_placement_data_new pobject_placement_data_new = (object_placement_data_new)(((char*)game.GetBase()) + 0x132163);
 	return pobject_placement_data_new(s_object_placement_data, object_definition_index, object_owner, unk);
 }
 
 	
-	int __cdecl Game::Allocator(int size)
-    {
-       // pLog.WriteLog("call_Allocator(%X)", size);
-        typedef int(__cdecl * allc)(int);
-        allc pallc = (allc)(((char*)game.GetBase()) + 0x20D2D8);
-        return pallc(size);
-    }
 	char __cdecl Game::call_ObjectSync(int GameObjectDatum)
 	{
 

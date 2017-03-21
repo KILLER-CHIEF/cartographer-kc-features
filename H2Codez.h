@@ -17,19 +17,8 @@ public:
 							 //Initialize Things
 	 void Start();
 	 //Gets Player Unit Datum from Player Index
-	 int get_unit_datum_from_player_index(int pIndex); 
-
-     char __cdecl PlayerShieldExplosion(int Unit);
+	 int get_unit_datum_from_player_index(int pIndex);      
 	
-
-	 
-
-
-	 int __stdcall MPMapSelect(int* a1);
-	 int __cdecl call_ShowSettingsScreen(int a1);
-	 
-
-	 int __cdecl ShowSquadSettings(int* a1);
 	 unsigned __int16 SpawnObj(int datumindex);
 	 unsigned __int16 SpawnObjAtCamera(int datumindex);
 
@@ -39,10 +28,7 @@ public:
 	 void GivePlayerWeapon(int PlayerIndex, int WeaponId);
 	 int __cdecl unit_set_active_camo(int Unit, char Active, float Time);
 
-	void CameraMod(int Type);
-	char __cdecl SetBipedStateRelated(int UnitDatum);
-	char __thiscall SetBipedState(int PlayerStateAddr, char PlayerState);
-
+	
 	 
 
 
@@ -76,16 +62,6 @@ public:
 
 	void __cdecl call_CharacterInitialize(void *SpawnData);
 	int __cdecl call_AssignObjDatumToPlayer(int pIndex, int UnitDatum);
-
-	
-	
-
-
-   // char __stdcall ObjInitializeData(int* datum_index_pointer, void* obj_network_data, int unk, void* nObject);
-   // void __stdcall ObjCreation(int* datum_index_pointer, void* obj_network_data, int unk, void* nObject);
-
-
-    int __cdecl Allocator(int size);
 
 
 

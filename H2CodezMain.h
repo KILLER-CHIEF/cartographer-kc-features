@@ -30,13 +30,13 @@
 #include "H2Codez.h"
 #include "Detours/detours.h"
 #include "Logs.h"
-#include "Forge.h"
 #include "GlitchyScripts.h"
 
 
 
 void H2CodezInitialize();
-void DisEngageHOOKS();
+
+extern BOOL EnableDbgConsole;
 
 
 
@@ -46,8 +46,8 @@ void DisEngageHOOKS();
 
 #pragma region NameSpaces
 
-//using std::cout;
-//using std::cin;
+using std::cout;
+using std::cin;
 using std::endl;
 using std::hex;
 using std::dec;
@@ -56,8 +56,7 @@ using std::ofstream;
 
 
 #pragma endregion
-
-
+void DisEngageHOOKS();
 
 // TODO: reference additional headers your program requires here
 

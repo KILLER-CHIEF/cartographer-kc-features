@@ -36,10 +36,7 @@ bool IsHost();
 void _cdecl call_SpawnPlayer(int PlayerIndex);
 char call_RestartLevel();
 void SpawnAICharacters();
-void HostFixes();
-void HostHooks();
-void ClientFixes();
-void ClientHooks();
+void Fixes();
 void TempUnHook();
 void MapThings();
 void SpawnPlayersCoop(); 
@@ -79,29 +76,35 @@ bool IsHost()
 
 int __cdecl h_InitializeGameEngineSystems(void* vpointer)
 {
-    pLog.WriteLog("Hooks:: EngineMode = (%i)",*(int*)vpointer);
+    pLog.WriteLog("Hooks:: EngineMode(%i)",*(int*)vpointer);
 	
     if(Coop.CoopGame==TRUE)
     {
 		MapThings();
+
+		*(int*)vpointer = 1;
+		pLog.WriteLog("Coop:: Starting Cooperative Gameplay.");
+		pLog.WriteLog("Hooks:: NewEngineMode(%i)", *(int*)vpointer);
 		if(IsHost())
 		{
-		*(int*)vpointer=1;
-		pLog.WriteLog("Coop:: Starting Cooperative Gameplay.");
-		pLog.WriteLog("Hooks:: NewEngineMode = (%i)",*(int*)vpointer);
+		if(*(BYTE*)Coop.PlayerCount<2)
+	    pLog.WriteLog("Coop:: Skip Your CutScene.\nGet Other Players To Join. :--)");
+		else
+	    pLog.WriteLog("Coop:: Someone Joined Too EARLY! :\ ");
 		Coop.Host_f=TRUE;
 		Coop.Begin = FALSE;
 		
 		}
 		else
-		{
-			pLog.WriteLog("Coop:: Allright Client Get Ready for Coop.");
-			Coop.Client_f=TRUE;
-			*(int*)vpointer = 1;
+		{		
+			int p=pGameSet(vpointer);
+			*(BYTE*)Coop.CoopSpawns = 1;
+			Coop.Client_f=TRUE;	
+			return p;
 		}
 		
 		Coop.CoopGame=FALSE;	
-		return pGameSet(vpointer);
+		
     }
 	else
 	{
@@ -110,10 +113,10 @@ int __cdecl h_InitializeGameEngineSystems(void* vpointer)
 		Coop.Host_f=FALSE;
 		Coop.Begin = FALSE;
 	    TempUnHook();
-        return pGameSet(vpointer);
-
+       
 	
 	}
+	return pGameSet(vpointer);
     
 	
 }
@@ -132,24 +135,16 @@ char __fastcall h_Crashy001(void *This,void* rubbish, int a2, int a3, int a4, in
 
 }
 
-int __cdecl h_FpWeaponsSet(int PlayerIndex, int UnitDatum, int PlayerModel)
-{
-	PlayerModel = Coop.CoopBiped;
-	HostFixes();
-	return pFp(PlayerIndex, UnitDatum, PlayerModel);
-}
 
 
 
-void _cdecl h_SpawnPlayer(int PlayerIndex);
 void _cdecl h_SpawnPlayer(int PlayerIndex)
 {	
 	if(Coop.Client_f==TRUE)
 	{
 		pLog.WriteLog("Coop:: Running Client Fixes.");
-		Coop.Client_f==FALSE;
-		CreateThread(0,0,( LPTHREAD_START_ROUTINE)ClientHooks,0,0,0);
-	    ClientFixes();   
+		Coop.Client_f==FALSE;		
+		Fixes();
 		
 	}
 	else if(Coop.Host_f==TRUE)
@@ -159,16 +154,12 @@ void _cdecl h_SpawnPlayer(int PlayerIndex)
 		Coop.Host_L=TRUE;		
 		Coop.Host_f=FALSE;
 	}
-	//return pSpawn(PlayerIndex);
+
+	
 }
 
 
-signed int Test()
-{
-	typedef signed int(__cdecl * t)();
-	t pt = (t)(((char*)game.GetBase()) + 0x51299);
-	return pt();
-}
+
 //Assign Halo 2 Pointers
 void CoopAssignPointers()
 {
@@ -199,12 +190,12 @@ void MapThings()
 	if ((!strcmp(map_name, "01a_tutorial")) || (!strcmp(map_name, "01b_spacestation")) || (!strcmp(map_name, "03a_oldmombasa")) || (!strcmp(map_name, "03b_newmombasa")) || (!strcmp(map_name, "05a_deltaapproach")) || (!strcmp(map_name, "05b_deltatowers")) || (!strcmp(map_name, "07a_highcharity")) || (!strcmp(map_name, "07b_forerunnership")))
 	{
 		Coop.CoopBiped = 0;
-		Coop.CoopTeam = 2;
+		Coop.CoopTeam = 1;
 	}
 	else if ((!strcmp(map_name, "04a_gasgiant")) || (!strcmp(map_name, "04b_floodlab")) || (!strcmp(map_name, "06a_sentinelwalls")) || (!strcmp(map_name, "06b_floodzone")) || (!strcmp(map_name, "08a_deltacliffs")) || (!strcmp(map_name, "08b_deltacontrol")))
 	{
 		Coop.CoopBiped = 1;
-		Coop.CoopTeam = 3;
+		Coop.CoopTeam = 1;
 	}
 	pLog.WriteLog("Coop:: Current Coop Map : %s", map_name);
 
@@ -218,15 +209,7 @@ void CooperativeHook()
     DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
 
-
-    DetourAttach(&(PVOID&)pGameSet,h_InitializeGameEngineSystems);
-	//DetourAttach(&(PVOID&)pSpawn, h_SpawnPlayer);
-	//DWORD dwBack;
-
-	//pSpawn = (pSpawn); DetourFunc((BYTE*)game.GetBase() + 0x55952, (BYTE*)h_SpawnPlayer, 6);
-	//VirtualProtect(pSpawn, 4, PAGE_EXECUTE_READWRITE, &dwBack);
-	//DetourAttach(&(PVOID&)pSpawn, h3_SpawnPlayer);
-
+    DetourAttach(&(PVOID&)pGameSet,h_InitializeGameEngineSystems);	
 	DetourTransactionCommit();
 
 	pLog.WriteLog("Hooks:: Cooperative Hooks Started.");
@@ -242,7 +225,7 @@ void ClientHooks()
     DetourTransactionBegin();
 	DetourUpdateThread(GetCurrentThread());
    
-    DetourAttach(&(PVOID&)pFp, h_FpWeaponsSet);
+   // DetourAttach(&(PVOID&)pFp, h_FpWeaponsSet);
     
 	DetourTransactionCommit();	
 	return;
@@ -255,7 +238,7 @@ void CooperativeUnHook()
 	DetourUpdateThread(GetCurrentThread());
 
     DetourDetach(&(PVOID&)pGameSet,h_InitializeGameEngineSystems);
-	DetourDetach(&(PVOID&)pFp, h_FpWeaponsSet);
+	//DetourDetach(&(PVOID&)pFp, h_FpWeaponsSet);
 	//DetourDetach(&(PVOID&)pSpawn, h_SpawnPlayer);
 
 	DetourTransactionCommit();	
@@ -266,9 +249,8 @@ void CooperativeUnHook()
 void TempUnHook()
 {
     DetourTransactionBegin();
-	DetourUpdateThread(GetCurrentThread());  
-	//DetourDetach(&(PVOID&)pSpawn, h_SpawnPlayer);
-	DetourDetach(&(PVOID&)pFp, h_FpWeaponsSet);	
+	DetourUpdateThread(GetCurrentThread()); 	
+	//DetourDetach(&(PVOID&)pFp, h_FpWeaponsSet);	
 	DetourTransactionCommit();	
 	pLog.WriteLog("Removed Temporary Coop Hooks.");
 	return;
@@ -287,7 +269,9 @@ void ClientFixes()
 	 *(int*)(0x30002BA0 + (i * 0x204))=Coop.CoopBiped;
 	 *(int*)(0x30002BD8 + (i * 0x204))=Coop.CoopTeam;
  }
+ //Obsolete Call_Functions
 #pragma region Call_Functions
+ /*
  void(*AiActivate)();
  AiActivate =(void (*)(void))((char*)game.GetBase()+0x30E67C);
  AiActivate();
@@ -338,7 +322,7 @@ void ClientFixes()
  HsSystem();
 
 
-  */
+  
 
  char(*CinematicGlobals)();
  CinematicGlobals = (char(*)(void))((char*)game.GetBase() + 0x3A5F3);
@@ -354,7 +338,7 @@ void ClientFixes()
 
 
 
- 
+ */
   
 
 
@@ -397,7 +381,7 @@ void ClientFixes()
 #pragma endregion
 }
 
-void HostFixes()
+void Fixes()
 {
 	//Lets Fix SomeThings
 	for (int i = 0;i <*(BYTE*)Coop.PlayerCount;i++)
@@ -409,7 +393,14 @@ void HostFixes()
 
 
 
+void SpawnPlayersCoop()
+{
+	for (int i = 0; i < *(BYTE*)Coop.PlayerCount; i++)
+	{
+		call_SpawnPlayer(i);
 
+	}
+}
 
 void InitializeCoop()
 {

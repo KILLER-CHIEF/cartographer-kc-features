@@ -165,7 +165,6 @@
       <InlineFunctionExpansion Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Default</InlineFunctionExpansion>
     </ClCompile>
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="Forge.cpp" />
     <ClCompile Include="GlitchyScripts.cpp" />
     <ClCompile Include="Globals.cpp" />
     <ClCompile Include="GUI.cpp" />
@@ -193,14 +192,12 @@
     <ClInclude Include="Cooperative.h" />
     <ClInclude Include="CUser.h" />
     <ClInclude Include="Detour.h" />
-    <ClInclude Include="Forge.h" />
     <ClInclude Include="GlitchyScripts.h" />
     <ClInclude Include="Globals.h" />
     <ClInclude Include="GUI.h" />
     <ClInclude Include="H2ChatBoxCommands.h" />
     <ClInclude Include="H2Codez.h" />
     <ClInclude Include="H2CodezMain.h" />
-    <ClInclude Include="H2Hooks.h" />
     <ClInclude Include="H2MOD.h" />
     <ClInclude Include="h2mod.pb.h" />
     <ClInclude Include="H2MOD_GunGame.h" />

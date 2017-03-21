@@ -11,7 +11,6 @@
 
 // dllmain.cpp : Defines the entry point for the DLL application.
 #include "H2CodezMain.h"
-#include "H2hooks.h"
 #include "Cooperative.h"
 #include "H2MOD.h"
 
@@ -31,8 +30,7 @@ Cooperative Coop;
 //Enable Hooking System
 void APPLYHOOKS()
 {
-	pLog.WriteLog("Hooks:: Initializing Hooking System....");
-	//CreateThread(0,0,( LPTHREAD_START_ROUTINE)H2Hooks,0,0,0);
+	pLog.WriteLog("Hooks:: Initializing Hooking System....");	
 	CreateThread(0, 0, (LPTHREAD_START_ROUTINE)CooperativeHook, 0, 0, 0);
 	pLog.WriteLog("Hooks:: InProgress");
 
@@ -54,98 +52,95 @@ void DisEngageHOOKS()
 void H2CodezLoop() {
 #pragma region HotKeys
 
-	//Do here Like Checks,Hotkeys,etc..
 	unsigned int datum;
-
-	if (GetAsyncKeyState(VK_F5) & 1)
+	while (true)
 	{
-
-		InitializeCoop();
-
-
-	}
-	if (GetAsyncKeyState(VK_F10) & 1)
-	{
-		/*
-		pLog.WriteLog("Coop:: All Players Dead..Spawning Them.");
-		Sleep(1500);
-		for (int i = 1;i < *(BYTE*)Coop.PlayerCount;i++)
+		if (GetAsyncKeyState(VK_F5) & 1)
 		{
-		call_SpawnPlayer(i);
-		}*/
-		*(BYTE*)Coop.GameEngine = 2;
-		char(*PlayerEffects)();
-		PlayerEffects = (char(*)(void))((char*)game.GetBase() + 0xA3E39);
-		PlayerEffects();
-		*(BYTE*)Coop.GameEngine = 1;
-	}
 
-	if (GetAsyncKeyState(VK_NEXT) & 1)
-	{
-		//50A398
-		pLog.WriteLog("Party Privacy : InviteOnly ");
-		*(int*)((char*)game.GetBase() + 0x50A398) = 2;
-
-
-
-	}
-	if (GetAsyncKeyState(VK_PRIOR) & 1)
-	{
-		pLog.WriteLog("Party Privacy : Open ");
-		*(int*)((char*)game.GetBase() + 0x50A398) = 0;
-
-
-	}
-	if (GetAsyncKeyState(VK_HOME) & 1)
-	{
+			InitializeCoop();
 
 
 
 
-		//datum= halo.SpawnObjAtCamera(0xEEE30D6D);
-		if (*(int*)0x30004D04 != -1)
+		}
+		if (GetAsyncKeyState(VK_F10) & 1)
 		{
-			datum = *(int*)0x30004D04;
-			game.call_AssignObjDatumToPlayer(0, datum);
+
+			*(BYTE*)Coop.GameEngine = 2;
+			char(*PlayerEffects)();
+			PlayerEffects = (char(*)(void))((char*)game.GetBase() + 0xA3E39);
+			PlayerEffects();
+			*(BYTE*)Coop.GameEngine = 1;
 		}
 
-
-	}
-
-	if (Coop.Host_L)
-	{
-		if (*(BYTE*)Coop.PlayerCount>1)
+		if (GetAsyncKeyState(VK_NEXT) & 1)
 		{
-			Coop.Begin = TRUE;
-			*(BYTE*)Coop.CoopSpawns = 1;
+			//50A398
+			pLog.WriteLog("Party Privacy : InviteOnly ");
+			*(int*)((char*)game.GetBase() + 0x50A398) = 2;
+
+
+
 		}
-
-
-
-		if (Coop.Begin)
+		if (GetAsyncKeyState(VK_PRIOR) & 1)
 		{
-			HostFixes();
-			int IsGameLost = 0x30004B64;
-			*(BYTE*)Coop.PauseGame = 0;
-			if (*(BYTE*)IsGameLost == 1)
+			pLog.WriteLog("Party Privacy : Open ");
+			*(int*)((char*)game.GetBase() + 0x50A398) = 0;
+
+
+		}
+		if (GetAsyncKeyState(VK_HOME) & 1)
+		{
+
+
+			//datum= halo.SpawnObjAtCamera(0xEEE30D6D);
+			if (*(int*)0x30004D04 != -1)
 			{
+				datum = *(int*)0x30004D04;
+				game.call_AssignObjDatumToPlayer(0, datum);
+			}
 
-				if (GetPlayersAlive() == 0)
+
+		}
+
+		if (Coop.Host_L)
+		{
+			if (*(BYTE*)Coop.PlayerCount>1)
+			{
+				Coop.Begin = TRUE;
+				*(BYTE*)Coop.CoopSpawns = 1;
+				pLog.WriteLog("Coop:: Co-op Started. Enjoy With Others");
+			}
+
+
+
+			if (Coop.Begin)
+			{
+				Fixes();
+				int IsGameLost = 0x30004B64;
+				*(BYTE*)Coop.PauseGame = 0;  //Stop Host Game From Pausing
+				if (*(BYTE*)IsGameLost == 1)
 				{
-					pLog.WriteLog("Coop:: All Players Dead..Spawning Them.");
-					Sleep(1500);
-					for (int i = 0; i < *(BYTE*)Coop.PlayerCount; i++)
+
+					if (GetPlayersAlive() == 0)
 					{
-						call_SpawnPlayer(i);
+						pLog.WriteLog("Coop:: All Players Dead..Spawning Them.");
+						Sleep(1500);
+						SpawnPlayersCoop();
 					}
-
-
-
 				}
 
 
 			}
+
+
+
 		}
+
+
+
+
 	}
 #pragma endregion 
 }
@@ -176,7 +171,7 @@ public:
 
 void H2CodezInitialize()
 {
-
+	
 	halo.Start();
 	APPLYHOOKS();
 

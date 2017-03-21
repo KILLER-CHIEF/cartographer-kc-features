@@ -15,7 +15,7 @@ int GetPlayerDyanamic(int Index)
 int GetPlayersAlive()
 {
 	int pcount=0;
-	for(int i=0;i<15;i++)
+	for(int i=0;i<16;i++)
 	{
 		if (GetPlayerDyanamic(i) != 0)
 		{
@@ -38,16 +38,13 @@ bool GetPlayersAlive(int index)
 	return pcount;
 }
 
-typedef bool(__cdecl *spawn_player)(int a1);
-extern spawn_player pspawn_player;
+
 
 void _cdecl call_SpawnPlayer(int PlayerIndex)
 {
+	typedef bool(__cdecl *spawn_player)(int);
+	extern spawn_player pspawn_player;
 	pspawn_player(PlayerIndex);
-
-	//typedef void(__cdecl * Spawn)(int);
-	//Spawn pSpawn = (Spawn)(((char*)game.GetBase()) + 0x55952);
-	//pSpawn(PlayerIndex);
 }
 
 char call_RestartLevel()
@@ -57,6 +54,7 @@ char call_RestartLevel()
 	return pRest();
 }
 
+//An Etc. Function (Nothing Related with Coop)
 void SpawnAICharacters()
 {
 	//Run this Only on The Great Journey

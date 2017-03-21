@@ -238,20 +238,21 @@ void mainLoop2() {
 		}
 
 		if (GetAsyncKeyState(VK_F3) & 0x1) {
+		
 			addDebugText("------------------------------");
 			addDebugText("Options:");
-			addDebugText("F2      - Toggle hiding this text display.");
+			addDebugText("~       - Toggle hiding this text display.");
 			addDebugText("F3      - Print and show this help text.");
 			addDebugText("F5      - Toggle online Coop mode.");
 			//addDebugText("F8      - ???");
 			addDebugText("F10     - Fix in-game player camera from a white/black bad cutscene.");
-			addDebugText("Home    - ???");
+			addDebugText("Home    - Sight Possession Hack.");
 			addDebugText("Page Up - Set Lobby Privacy to OPEN.");
 			addDebugText("Page Dn - Set Lobby Privacy to INVITE ONLY.");
 			addDebugText("------------------------------");
 			setDebugTextDisplay(true);
 		}
-		if (GetAsyncKeyState(VK_F2) & 0x1) {
+		if (GetAsyncKeyState(VK_OEM_3) & 0x1) {
 			setDebugTextDisplay(!getDebugTextDisplay());
 		}
 
