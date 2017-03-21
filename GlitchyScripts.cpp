@@ -20,7 +20,7 @@ DWORD MemAddrBase;
 int playerNumber = 0;
 
 char** DebugStr;
-int DebugTextArrayLenMax = 60;
+int DebugTextArrayLenMax = 160;
 int DebugTextArrayPos = 0;
 bool DebugTextDisplay = false;
 
@@ -151,15 +151,26 @@ int getDebugTextArrayMaxLen() {
 }
 
 void addDebugText(char* text) {
+
+	int lenInput = strlen(text);
+
+	char* endChar = strchr(text, '\n');
+	if (endChar) {
+		lenInput = endChar - text;
+	}
+
 	DebugTextArrayPos++;
 	if (DebugTextArrayPos >= DebugTextArrayLenMax) {
 		DebugTextArrayPos = 0;
 	}
 
 	free(DebugStr[DebugTextArrayPos]);
-	DebugStr[DebugTextArrayPos] = (char*)malloc(sizeof(char) * strlen(text) + 1);
-	
-	strncpy(DebugStr[DebugTextArrayPos], text, strlen(text) + 1);
+	DebugStr[DebugTextArrayPos] = (char*)malloc(sizeof(char) * lenInput + 1);
+	strncpy(DebugStr[DebugTextArrayPos], text, lenInput);
+	memset(DebugStr[DebugTextArrayPos] + lenInput, 0, 1);
+	if (endChar) {
+		addDebugText(endChar + 1);
+	}
 }
 
 void initDebugText() {
@@ -228,15 +239,15 @@ void mainLoop2() {
 
 		if (GetAsyncKeyState(VK_F3) & 0x1) {
 			addDebugText("------------------------------");
-			addDebugText("Page Dn - Set Lobby Privacy to INVITE ONLY.");
-			addDebugText("Page Up - Set Lobby Privacy to OPEN.");
-			addDebugText("Home    - ???");
-			addDebugText("F10     - Fix in-game player camera from a white/black bad cutscene.");
-			//addDebugText("F8      - ???");
-			addDebugText("F5      - Toggle online Coop mode.");
-			addDebugText("F3      - Print and show this help text.");
-			addDebugText("F2      - Toggle hiding this text display.");
 			addDebugText("Options:");
+			addDebugText("F2      - Toggle hiding this text display.");
+			addDebugText("F3      - Print and show this help text.");
+			addDebugText("F5      - Toggle online Coop mode.");
+			//addDebugText("F8      - ???");
+			addDebugText("F10     - Fix in-game player camera from a white/black bad cutscene.");
+			addDebugText("Home    - ???");
+			addDebugText("Page Up - Set Lobby Privacy to OPEN.");
+			addDebugText("Page Dn - Set Lobby Privacy to INVITE ONLY.");
 			addDebugText("------------------------------");
 			setDebugTextDisplay(true);
 		}
@@ -246,7 +257,7 @@ void mainLoop2() {
 
 		//& 0x8000 is pressed
 		//& 0x1 Key just transitioned from released to pressed.
-		/*if (GetAsyncKeyState(VK_F8) & 0x1) {
+		if (GetAsyncKeyState(VK_F8) & 0x1) {
 			
 			int msgboxID = MessageBox(NULL,
 				L"Be A Player",
@@ -264,7 +275,7 @@ void mainLoop2() {
 			//char MsgBox3[255];
 			//sprintf(MsgBox3, "do it");
 			//MessageBoxA(NULL, MsgBox3, "yah!", MB_OK);
-		}*/
+		}
 	}
 	
 }

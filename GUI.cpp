@@ -334,7 +334,7 @@ int WINAPI XLiveRender()
 				drawText(0, 15, COLOR_RED, ServerStatus, smallFont);
 		}
 
-		/*D3DVIEWPORT9 pViewport;
+		D3DVIEWPORT9 pViewport;
 		pDevice->GetViewport(&pViewport);
 		//pViewport.X
 
@@ -348,7 +348,7 @@ int WINAPI XLiveRender()
 		int gameWindowWidth = gameWindowRect.right - gameWindowRect.left - GetSystemMetrics(SM_CXSIZEFRAME);
 		int gameWindowHeight = gameWindowRect.bottom - gameWindowRect.top;
 
-		POINT point;
+		/*POINT point;
 		GetCursorPos(&point);
 
 		//int windowX = ;
@@ -368,8 +368,13 @@ int WINAPI XLiveRender()
 		if (getDebugTextDisplay()) {
 			for (int i = 0; i < getDebugTextArrayMaxLen(); i++) {
 				const char* text = getDebugText(i);
+				//int yOffset = 40 + (i * 14);
+				int yOffset = gameWindowHeight - 55 - (i * 14);
+				if (yOffset < 35) {
+					break;
+				}
 				if (strlen(text) > 0) {
-					drawText(10, 40 + (i * 14), COLOR_WHITE, text, smallFont);
+					drawText(10, yOffset, COLOR_WHITE, text, smallFont);
 				}
 			}
 		}
