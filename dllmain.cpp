@@ -462,6 +462,7 @@ void InitInstance()
 void ExitInstance()
 {
 	EnterCriticalSection (&d_lock);
+	DisEngageHOOKS();
 
 	if (logfile)
 	{

@@ -27,11 +27,6 @@ Logs pLog = Logs("H2Codez.log");
 Cooperative Coop;
 
 
-BOOL EnableDbgConsole;
-
-
-
-
 
 //Enable Hooking System
 void APPLYHOOKS()
@@ -182,7 +177,6 @@ public:
 void H2CodezInitialize()
 {
 
-	EnableDbgConsole = TRUE;
 	halo.Start();
 	APPLYHOOKS();
 

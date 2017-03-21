@@ -36,8 +36,7 @@
 
 
 void H2CodezInitialize();
-
-extern BOOL EnableDbgConsole;
+void DisEngageHOOKS();
 
 
 
@@ -47,8 +46,8 @@ extern BOOL EnableDbgConsole;
 
 #pragma region NameSpaces
 
-using std::cout;
-using std::cin;
+//using std::cout;
+//using std::cin;
 using std::endl;
 using std::hex;
 using std::dec;

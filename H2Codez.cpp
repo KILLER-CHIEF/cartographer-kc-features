@@ -10,8 +10,6 @@
 void H2class::Start()
 {
 
-	if (EnableDbgConsole)
-		Dbg.Start_Console();
 	pLog.WriteLog("\n*** H2 Codez***\nAlpha v1.1\n\n");
 
 	if (GetModuleHandleW(L"halo2.exe"))

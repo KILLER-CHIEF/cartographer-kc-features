@@ -13,7 +13,7 @@ void Logs::WriteLog(const char* line, ...)
 {
 	
 	SYSTEMTIME tt;
-GetLocalTime(&tt);
+	GetLocalTime(&tt);
 
 	char buf[2048];	
 	va_list myarg;
@@ -25,30 +25,17 @@ GetLocalTime(&tt);
 	
 	addDebugText(buf);
 
-	if(EnableDbgConsole)
-	cout<<buf<<endl; //Write to Allocated Console
-
 	//Lets now Write the buffer to our opened File
 
 	file<<tt.wHour<<":"<<tt.wMinute<<":"<<tt.wSecond<<":"<<tt.wMilliseconds<<"\t";//Lets add time to log
 	file<<buf<<endl; //Write to log
-	
+	file.flush();
 }
 
 void Logs::Exit()
 {
 	file.flush();
 	file.close();
-}
-
-
-
-VOID Debug::Start_Console()//AllocConsole	
-{
-	AllocConsole();
-	SetConsoleTitleA("Halo 2 Debug");
-	freopen("CONOUT$", "w", stdout);
-
 }
 
 
