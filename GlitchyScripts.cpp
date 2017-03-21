@@ -234,7 +234,7 @@ void mainLoop2() {
 				wsprintf(titleMod, L"%ls (P%d)", titleOriginal, getPlayerNumber());
 				SetWindowText(halo2hWnd, titleMod);
 			}
-			SetWindowLong(halo2hWnd, GWL_STYLE, GetWindowLong(halo2hWnd, GWL_STYLE) | WS_SIZEBOX); // | WS_THICKFRAME
+			SetWindowLong(halo2hWnd, GWL_STYLE, GetWindowLong(halo2hWnd, GWL_STYLE) | WS_SIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
 		}
 
 		if (GetAsyncKeyState(VK_F3) & 0x1) {
@@ -244,7 +244,7 @@ void mainLoop2() {
 			addDebugText("~       - Toggle hiding this text display.");
 			addDebugText("F3      - Print and show this help text.");
 			addDebugText("F5      - Toggle online Coop mode.");
-			//addDebugText("F8      - ???");
+			addDebugText("F8      - Enable/Disable Borderless.");
 			addDebugText("F10     - Fix in-game player camera from a white/black bad cutscene.");
 			addDebugText("Home    - Sight Possession Hack.");
 			addDebugText("Page Up - Set Lobby Privacy to OPEN.");
@@ -259,18 +259,17 @@ void mainLoop2() {
 		//& 0x8000 is pressed
 		//& 0x1 Key just transitioned from released to pressed.
 		if (GetAsyncKeyState(VK_F8) & 0x1) {
-			
 			int msgboxID = MessageBox(NULL,
-				L"Be A Player",
+				L"Go to Borderless Mode?\nNote: mouse position is not accurate in menus when in borderless.",
 				L"Confirm",
 				MB_ICONEXCLAMATION | MB_YESNO
 			);
 			if (msgboxID == IDYES)
 			{
-				
+				SetWindowLong(halo2hWnd, GWL_STYLE, GetWindowLong(halo2hWnd, GWL_STYLE) & ~(WS_THICKFRAME | WS_BORDER | WS_DLGFRAME));
 			}
 			else {
-				
+				SetWindowLong(halo2hWnd, GWL_STYLE, GetWindowLong(halo2hWnd, GWL_STYLE) | WS_THICKFRAME | WS_BORDER | WS_DLGFRAME);
 			}
 
 			//char MsgBox3[255];

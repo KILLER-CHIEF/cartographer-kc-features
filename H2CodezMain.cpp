@@ -53,95 +53,72 @@ void H2CodezLoop() {
 #pragma region HotKeys
 
 	unsigned int datum;
-	while (true)
+	if (GetAsyncKeyState(VK_F5) & 1)
 	{
-		if (GetAsyncKeyState(VK_F5) & 1)
-		{
-
-			InitializeCoop();
-
-
-
-
-		}
-		if (GetAsyncKeyState(VK_F10) & 1)
-		{
-
-			*(BYTE*)Coop.GameEngine = 2;
-			char(*PlayerEffects)();
-			PlayerEffects = (char(*)(void))((char*)game.GetBase() + 0xA3E39);
-			PlayerEffects();
-			*(BYTE*)Coop.GameEngine = 1;
-		}
-
-		if (GetAsyncKeyState(VK_NEXT) & 1)
-		{
-			//50A398
-			pLog.WriteLog("Party Privacy : InviteOnly ");
-			*(int*)((char*)game.GetBase() + 0x50A398) = 2;
-
-
-
-		}
-		if (GetAsyncKeyState(VK_PRIOR) & 1)
-		{
-			pLog.WriteLog("Party Privacy : Open ");
-			*(int*)((char*)game.GetBase() + 0x50A398) = 0;
-
-
-		}
-		if (GetAsyncKeyState(VK_HOME) & 1)
-		{
-
-
-			//datum= halo.SpawnObjAtCamera(0xEEE30D6D);
-			if (*(int*)0x30004D04 != -1)
-			{
-				datum = *(int*)0x30004D04;
-				game.call_AssignObjDatumToPlayer(0, datum);
-			}
-
-
-		}
-
-		if (Coop.Host_L)
-		{
-			if (*(BYTE*)Coop.PlayerCount>1)
-			{
-				Coop.Begin = TRUE;
-				*(BYTE*)Coop.CoopSpawns = 1;
-				pLog.WriteLog("Coop:: Co-op Started. Enjoy With Others");
-			}
-
-
-
-			if (Coop.Begin)
-			{
-				Fixes();
-				int IsGameLost = 0x30004B64;
-				*(BYTE*)Coop.PauseGame = 0;  //Stop Host Game From Pausing
-				if (*(BYTE*)IsGameLost == 1)
-				{
-
-					if (GetPlayersAlive() == 0)
-					{
-						pLog.WriteLog("Coop:: All Players Dead..Spawning Them.");
-						Sleep(1500);
-						SpawnPlayersCoop();
-					}
-				}
-
-
-			}
-
-
-
-		}
-
-
-
+		InitializeCoop();
 
 	}
+	if (GetAsyncKeyState(VK_F10) & 1)
+	{
+		*(BYTE*)Coop.GameEngine = 2;
+		char(*PlayerEffects)();
+		PlayerEffects = (char(*)(void))((char*)game.GetBase() + 0xA3E39);
+		PlayerEffects();
+		*(BYTE*)Coop.GameEngine = 1;
+	}
+
+	if (GetAsyncKeyState(VK_NEXT) & 1)
+	{
+		//50A398
+		pLog.WriteLog("Party Privacy : InviteOnly ");
+		*(int*)((char*)game.GetBase() + 0x50A398) = 2;
+
+	}
+	if (GetAsyncKeyState(VK_PRIOR) & 1)
+	{
+		pLog.WriteLog("Party Privacy : Open ");
+		*(int*)((char*)game.GetBase() + 0x50A398) = 0;
+
+	}
+	if (GetAsyncKeyState(VK_HOME) & 1)
+	{
+		//datum= halo.SpawnObjAtCamera(0xEEE30D6D);
+		if (*(int*)0x30004D04 != -1)
+		{
+			datum = *(int*)0x30004D04;
+			game.call_AssignObjDatumToPlayer(0, datum);
+		}
+
+	}
+
+	if (Coop.Host_L)
+	{
+		if (*(BYTE*)Coop.PlayerCount > 1)
+		{
+			Coop.Begin = TRUE;
+			*(BYTE*)Coop.CoopSpawns = 1;
+			pLog.WriteLog("Coop:: Co-op Started. Enjoy With Others");
+		}
+
+		if (Coop.Begin)
+		{
+			Fixes();
+			int IsGameLost = 0x30004B64;
+			*(BYTE*)Coop.PauseGame = 0;  //Stop Host Game From Pausing
+			if (*(BYTE*)IsGameLost == 1)
+			{
+
+				if (GetPlayersAlive() == 0)
+				{
+					pLog.WriteLog("Coop:: All Players Dead..Spawning Them.");
+					Sleep(1500);
+					SpawnPlayersCoop();
+				}
+			}
+
+		}
+	}
+
 #pragma endregion 
 }
 
