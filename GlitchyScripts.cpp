@@ -7,6 +7,8 @@
 #include <fstream>
 #include <iostream>
 #include "GlitchyScripts.h"
+#include <d3d9.h>
+extern LPDIRECT3DDEVICE9 pDevice;
 
 
 void OverwriteAssembly(BYTE* srcAddr, BYTE* writeAssm, int lenAssm);
@@ -23,6 +25,7 @@ char** DebugStr;
 int DebugTextArrayLenMax = 160;
 int DebugTextArrayPos = 0;
 bool DebugTextDisplay = false;
+RECT rectScreenOriginal;
 
 void setDebugTextDisplay(bool setOn) {
 	DebugTextDisplay = setOn;
@@ -259,22 +262,50 @@ void mainLoop2() {
 		//& 0x8000 is pressed
 		//& 0x1 Key just transitioned from released to pressed.
 		if (GetAsyncKeyState(VK_F8) & 0x1) {
-			int msgboxID = MessageBox(NULL,
-				L"Go to Borderless Mode?\nNote: mouse position is not accurate in menus when in borderless.",
-				L"Confirm",
-				MB_ICONEXCLAMATION | MB_YESNO
+			wchar_t title[255];
+			wsprintf(title, L"Confirm Window Mode for Player %d", getPlayerNumber());
+			int msgboxID = MessageBox(halo2hWnd,
+				L"Go to Borderless Mode?\nNo = Windowed mode.\nWarning: Clicking the same option that is currently active can have weird side effects.",
+				title,
+				MB_ICONEXCLAMATION | MB_YESNOCANCEL
 			);
 			if (msgboxID == IDYES)
 			{
-				SetWindowLong(halo2hWnd, GWL_STYLE, GetWindowLong(halo2hWnd, GWL_STYLE) & ~(WS_THICKFRAME | WS_BORDER | WS_DLGFRAME));
+				RECT rectScreen;
+				GetWindowRect(halo2hWnd, &rectScreen);
+				D3DVIEWPORT9 pViewport;
+				pDevice->GetViewport(&pViewport);
+				int width = pViewport.Width;
+				int height = pViewport.Height;
+				long borderPadX = 0;
+				long borderPadY = 0;
+				int excessY = GetSystemMetrics(SM_CYCAPTION);
+
+				WINDOWPLACEMENT place3;
+				GetWindowPlacement(halo2hWnd, &place3);
+				if ((place3.flags & WPF_RESTORETOMAXIMIZED) == WPF_RESTORETOMAXIMIZED) {
+					WINDOWPLACEMENT place2;
+					GetWindowPlacement(halo2hWnd, &place2);
+					place2.showCmd = (place2.showCmd | SW_SHOWNOACTIVATE) & ~SW_MAXIMIZE;
+					SetWindowPlacement(halo2hWnd, &place2);
+					borderPadX = GetSystemMetrics(SM_CXSIZEFRAME);
+					borderPadY = GetSystemMetrics(SM_CYSIZEFRAME);
+				}
+				GetWindowRect(halo2hWnd, &rectScreenOriginal);
+
+				SetWindowLong(halo2hWnd, GWL_STYLE, GetWindowLong(halo2hWnd, GWL_STYLE) & ~(WS_THICKFRAME | WS_SIZEBOX | WS_BORDER | WS_DLGFRAME));
+				//SetWindowLong(halo2hWnd, GWL_STYLE, GetWindowLong(halo2hWnd, GWL_EXSTYLE) & ~(WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE));
+				
+				SetWindowPos(halo2hWnd, NULL, rectScreen.left + borderPadX, rectScreen.top + borderPadY, width, height + excessY, 0);// SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
+
 			}
-			else {
+			else if (msgboxID == IDNO) {
 				SetWindowLong(halo2hWnd, GWL_STYLE, GetWindowLong(halo2hWnd, GWL_STYLE) | WS_THICKFRAME | WS_BORDER | WS_DLGFRAME);
+				long width = rectScreenOriginal.right - rectScreenOriginal.left;// -GetSystemMetrics(SM_CXSIZEFRAME) - GetSystemMetrics(SM_CXSIZEFRAME);
+				long height = rectScreenOriginal.bottom - rectScreenOriginal.top;// -GetSystemMetrics(SM_CYSIZEFRAME) - GetSystemMetrics(SM_CYSIZEFRAME);
+				SetWindowPos(halo2hWnd, NULL, rectScreenOriginal.left, rectScreenOriginal.top, width, height, SWP_FRAMECHANGED);
 			}
 
-			//char MsgBox3[255];
-			//sprintf(MsgBox3, "do it");
-			//MessageBoxA(NULL, MsgBox3, "yah!", MB_OK);
 		}
 	}
 	

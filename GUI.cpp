@@ -120,11 +120,13 @@ void GUI::Initialize()
 }
 
 bool once1 = false;
+extern RECT rectScreenOriginal;
 // #5001
 int WINAPI XLiveInput(XLIVE_INPUT_INFO* pPii)
 {
 	if (!once1) {
 		halo2hWnd = pPii->hWnd;
+		GetWindowRect(halo2hWnd, &rectScreenOriginal);
 		once1 = true;
 	}
 	return 1;
@@ -336,12 +338,20 @@ int WINAPI XLiveRender()
 
 		D3DVIEWPORT9 pViewport;
 		pDevice->GetViewport(&pViewport);
-		//pViewport.X
+		//pViewport
+		//char textttt[255];
+		//sprintf(textttt, "x:%d, y:%d", pViewport.Width, pViewport.Height);
+		//drawText(100, 50, COLOR_WHITE, textttt, smallFont);
 
 		D3DDEVICE_CREATION_PARAMETERS cparams;
 		pDevice->GetCreationParameters(&cparams);
 		RECT gameWindowRect;
 		GetWindowRect(cparams.hFocusWindow, &gameWindowRect);
+
+		//char texttttt[255];
+		//sprintf(texttttt, "x:%ld, y:%ld", gameWindowRect.right - gameWindowRect.left, gameWindowRect.bottom - gameWindowRect.top);
+		//drawText(100, 65, COLOR_WHITE, texttttt, smallFont);
+
 		RECT gameWindowInnerRect;
 		GetClientRect(cparams.hFocusWindow, &gameWindowInnerRect);
 
