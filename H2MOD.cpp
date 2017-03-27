@@ -1058,6 +1058,22 @@ int __cdecl connect_establish_write(void* a1, int a2, int a3)
 	return pconnect_establish_write(a1, a2, a3);
 }
 
+typedef void*(__stdcall *tload_main_menu_six_opt)(void* thisptr, int a2, int a3, int a4);
+tload_main_menu_six_opt pload_main_menu_six_opt;
+
+bool once3 = false;
+
+void* __stdcall LoadMainMenuSixOpt(void* thisptr, int a2, int a3, int a4) {
+	if (!once3) {
+		once3 = true;
+		extern void H2CodezInitialize();
+		H2CodezInitialize();
+	}
+	//void* thisptr = 
+	pload_main_menu_six_opt(thisptr, a2, a3, a4);
+	return thisptr;
+}
+
 void H2MOD::ApplyHooks() {
 	/* Should store all offsets in a central location and swap the variables based on h2server/halo2.exe*/
 	/* We also need added checks to see if someone is the host or not, if they're not they don't need any of this handling. */
@@ -1065,6 +1081,9 @@ void H2MOD::ApplyHooks() {
 		TRACE_GAME("Applying client hooks...");
 		/* These hooks are only built for the client, don't enable them on the server! */
 		DWORD dwBack;
+
+		pload_main_menu_six_opt = (tload_main_menu_six_opt)DetourClassFunc((BYTE*)this->GetBase() + 0xB6CA, (BYTE*)LoadMainMenuSixOpt, 13);
+		VirtualProtect(pload_main_menu_six_opt, 4, PAGE_EXECUTE_READWRITE, &dwBack);
 
 		pjoin_game = (tjoin_game)DetourClassFunc((BYTE*)this->GetBase() + 0x1CDADE, (BYTE*)join_game, 13);
 		VirtualProtect(pjoin_game, 4, PAGE_EXECUTE_READWRITE, &dwBack);

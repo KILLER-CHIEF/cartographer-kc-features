@@ -146,9 +146,10 @@ public:
 
 };
 
-void H2CodezInitialize()
+DWORD WINAPI ThreadH2CodezMain(LPVOID lpParam);
+
+DWORD WINAPI ThreadH2CodezMain(LPVOID lpParam)
 {
-	
 	halo.Start();
 	APPLYHOOKS();
 
@@ -158,8 +159,14 @@ void H2CodezInitialize()
 		later later_test1(1, false, &H2CodezLoop);
 	}
 #pragma endregion 
+	return 0;
 }
 
+void H2CodezInitialize()
+{
+	DWORD  dwThreadIdH2Codez;
+	CreateThread(NULL, NULL, &ThreadH2CodezMain, NULL, NULL, &dwThreadIdH2Codez);
+}
 
 
 /*BOOL APIENTRY DllMain(HMODULE hModule,

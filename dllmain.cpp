@@ -494,20 +494,11 @@ void ExitInstance()
 	ExitProcess(0);
 }
 
-DWORD WINAPI ThreadMain2(LPVOID lpParam);
-
-DWORD WINAPI ThreadMain2(LPVOID lpParam)
-{
-	H2CodezInitialize();
-	return 0;
-}
-
 DWORD WINAPI ThreadMain(LPVOID lpParam);
 
 DWORD WINAPI ThreadMain(LPVOID lpParam)
 {
-	DWORD  dwThreadIdH2Codez;
-	CreateThread(NULL, NULL, &ThreadMain2, NULL, NULL, &dwThreadIdH2Codez);
+	//H2CodezInitialize();
 	mainLoop();
 	return 0;
 }
