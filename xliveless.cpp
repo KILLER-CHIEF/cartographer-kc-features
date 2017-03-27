@@ -2306,13 +2306,12 @@ int WINAPI XEnumerate(HANDLE hEnum, CHAR *pvBuffer, DWORD cbBuffer, PDWORD pcIte
 		}
 
 
-
+		
 		if( async == FALSE )
 		{
 			if( *pcItemsReturned == 0 )
 				achieveinit = 0x7fffffff;
 		}
-
 		else
 		{
 			if( pOverlapped->InternalHigh == 0 )
@@ -2771,27 +2770,23 @@ DWORD WINAPI XUserWriteAchievements (DWORD count, PXUSER_ACHIEVEMENT pAchievemen
     TRACE("XUserWriteAchievements  (count = %x, buffer = %x, overlap = %x)",
 			count, pAchievement, pOverlap );
 
-		if( count > 0 )
+	if( count > 0 )
+	{
+		while( count > 0 )
 		{
-			while( count > 0 )
-			{
-				achievementList[ pAchievement->dwAchievementId ] = 1;
+			achievementList[ pAchievement->dwAchievementId ] = 1;
 
+			TRACE2("Achievement %d unlocked by Player %d", pAchievement->dwAchievementId, pAchievement->dwUserIndex);
+			pAchievement++;
 
-				TRACE2("Achievement unlocked = %d", pAchievement->dwAchievementId );
-				pAchievement++;
-
-
-				count--;
-			}
-
-
-			// crash-protect progress
-			SaveAchievements();
+			count--;
 		}
 
-
-		return 0;
+		// crash-protect progress
+		SaveAchievements();
+	}
+	
+	return 997;
 }
 
 
