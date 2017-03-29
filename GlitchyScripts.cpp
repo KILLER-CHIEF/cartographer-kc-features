@@ -41,6 +41,19 @@ int getPlayerNumber() {
 	return playerNumber;
 }
 
+void getVKeyCodeString(int vkey, char* rtnString, int strLen) {
+	snprintf(rtnString, 5, "0x%x", vkey);
+	char key_name[20];
+	memset(key_name, 0, 1);
+	if (vkey >= 0x70 && vkey <= 0x87) {
+		int func_num = vkey - 0x70 + 1;
+		snprintf(key_name, 20, "VK_F%d", func_num);
+	}
+	if (strlen(key_name) > 0) {
+		snprintf(rtnString + strlen(rtnString), strLen - 5, " - %s", key_name);
+	}
+}
+
 void hexToByteArray(BYTE* byteArray, char* pointerHex) {
 	char totext2[32];
 	memset(totext2, '0', 1);
@@ -221,94 +234,201 @@ void mainLoop2();
 
 void mainLoop() {
 	while (1) {
-		later later_test1(1, false, &mainLoop2);
+		//loop every 4 milliseconds
+		later later_test1(4, false, &mainLoop2);
 	}
 }
 
+VOID CallWgit() {
+
+	//int __thiscall WgitScreenInitializer(int this)
+	//signed int __thiscall Load_WgitScreen2(int this, __int16 a2, __int16 a3, int a4, int a5, int a6, signed int a7)
+	//signed int __thiscall Load_WgitScreens(int tempmemaddrPtr, __int16 a2, int a3, int a4, int WgitScreenFuncPtr)
+	//int __thiscall WgitScreenFinaliser(int tempmemaddrPtr)
+	//---------------------------------------- -
+	//	(Ida Function Prototypes)
+	//-------------------------------------- -
+	char* tmp = (char*)malloc(sizeof(char) * 0x20);
+
+	int(__thiscall*WgitInitialize)(void*);
+	WgitInitialize = (int(__thiscall*)(void*))((char*)MemAddrBase + 0x20B0BC);
+	signed int(__thiscall*WgitLoad)(void*, __int16, int, int, int);
+	WgitLoad = (signed int(__thiscall*)(void*, __int16, int, int, int))((char*)MemAddrBase + 0x20C226);
+	int(__thiscall*WgitFinalize)(void*);
+	WgitFinalize = (int(__thiscall*)(void*))((char*)MemAddrBase + 0x20B11E);
+	//Now Calling Menus.
+	int WgitScreenfunctionPtr = (int)((char*)MemAddrBase + 0xE757);//PCR
+	WgitInitialize(tmp);
+	WgitLoad(tmp, 1, 3, 4, WgitScreenfunctionPtr);
+	WgitFinalize(tmp);
+
+	free(tmp);
+}
+
+void setBorderless(int originX, int originY, int width, int height) {
+	SetWindowLong(halo2hWnd, GWL_STYLE, GetWindowLong(halo2hWnd, GWL_STYLE) & ~(WS_THICKFRAME | WS_SIZEBOX | WS_BORDER | WS_DLGFRAME));
+	//SetWindowLong(halo2hWnd, GWL_STYLE, GetWindowLong(halo2hWnd, GWL_EXSTYLE) & ~(WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE));
+
+	SetWindowPos(halo2hWnd, NULL, originX, originY, width, height, 0);// SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
+
+}
+
+void setWindowed(int originX, int originY, int width, int height) {
+	SetWindowLong(halo2hWnd, GWL_STYLE, GetWindowLong(halo2hWnd, GWL_STYLE) | WS_THICKFRAME | WS_BORDER | WS_DLGFRAME);
+	SetWindowPos(halo2hWnd, NULL, originX, originY, width, height, SWP_FRAMECHANGED);
+}
+
+void padCStringWithChar(char* strToPad, int toFullLength, char c) {
+	for (int i = strlen(strToPad); i < toFullLength - 1; i++) {
+		memset(strToPad + i, c, sizeof(char));
+	}
+	memset(strToPad + toFullLength - 1, 0, sizeof(char));
+}
+
+int hotkeyIdToggleDebug = VK_F2;
+void hotkeyFuncHideDebug() {
+	setDebugTextDisplay(!getDebugTextDisplay());
+}
+
+int hotkeyIdAlignWindow = VK_F7;
+void hotkeyFuncAlignWindow() {
+	HMONITOR monitor = MonitorFromWindow(halo2hWnd, MONITOR_DEFAULTTONEAREST);
+	MONITORINFO info;
+	info.cbSize = sizeof(MONITORINFO);
+	GetMonitorInfo(monitor, &info);
+	int monitor_width = info.rcMonitor.right - info.rcMonitor.left;
+	int monitor_height = info.rcMonitor.bottom - info.rcMonitor.top;
+	int interval_width = monitor_width / 2;
+	int interval_height = monitor_height / 2;
+	D3DVIEWPORT9 pViewport;
+	pDevice->GetViewport(&pViewport);
+	int width = interval_width * round(pViewport.Width / (double)interval_width);
+	int height = interval_height * round(pViewport.Height / (double)interval_height);
+	RECT gameWindowRect;
+	GetWindowRect(halo2hWnd, &gameWindowRect);
+	int monitorXOffset = gameWindowRect.left - info.rcMonitor.left;
+	int monitorYOffset = gameWindowRect.top - info.rcMonitor.top;
+	int padX = interval_width * round(monitorXOffset / (double)interval_width);
+	int padY = interval_height * round(monitorYOffset / (double)interval_height);
+	int posX = info.rcMonitor.left + padX;
+	int posY = info.rcMonitor.top + padY;
+
+	setBorderless(posX, posY, width, height);
+}
+
+int hotkeyIdWindowMode = VK_F8;
+void hotkeyFuncWindowMode() {
+	wchar_t title[255];
+	wsprintf(title, L"Confirm Window Mode for Player %d", getPlayerNumber());
+	int msgboxID = MessageBox(halo2hWnd,
+		L"Go to Borderless Mode?\nNo = Windowed mode.\nWarning: Clicking the same option that is currently active can have weird side effects.",
+		title,
+		MB_ICONEXCLAMATION | MB_YESNOCANCEL
+	);
+	if (msgboxID == IDYES)
+	{
+		RECT rectScreen;
+		GetWindowRect(halo2hWnd, &rectScreen);
+		D3DVIEWPORT9 pViewport;
+		pDevice->GetViewport(&pViewport);
+		int width = pViewport.Width;
+		int height = pViewport.Height;
+		long borderPadX = 0;
+		long borderPadY = 0;
+		int excessY = GetSystemMetrics(SM_CYCAPTION);
+
+		WINDOWPLACEMENT place3;
+		GetWindowPlacement(halo2hWnd, &place3);
+		if ((place3.flags & WPF_RESTORETOMAXIMIZED) == WPF_RESTORETOMAXIMIZED) {
+			WINDOWPLACEMENT place2;
+			GetWindowPlacement(halo2hWnd, &place2);
+			place2.showCmd = (place2.showCmd | SW_SHOWNOACTIVATE) & ~SW_MAXIMIZE;
+			SetWindowPlacement(halo2hWnd, &place2);
+			borderPadX = GetSystemMetrics(SM_CXSIZEFRAME);
+			borderPadY = GetSystemMetrics(SM_CYSIZEFRAME);
+		}
+		GetWindowRect(halo2hWnd, &rectScreenOriginal);
+
+		setBorderless(rectScreen.left + borderPadX, rectScreen.top + borderPadY, width, height + excessY);
+
+	}
+	else if (msgboxID == IDNO) {
+		long width = rectScreenOriginal.right - rectScreenOriginal.left;// -GetSystemMetrics(SM_CXSIZEFRAME) - GetSystemMetrics(SM_CXSIZEFRAME);
+		long height = rectScreenOriginal.bottom - rectScreenOriginal.top;// -GetSystemMetrics(SM_CYSIZEFRAME) - GetSystemMetrics(SM_CYSIZEFRAME);
+		setWindowed(rectScreenOriginal.left, rectScreenOriginal.top, width, height);
+	}
+}
+
+int hotkeyIdTest = VK_F6;
+void hotkeyFuncTest() {
+	//typedef int(__cdecl * assign)();
+	//assign passign = (assign)(((char*)MemAddrBase) + 0x20C724);
+	//passign();
+	CallWgit();
+}
+
+int hotkeyIdHelp = VK_F3;
+void hotkeyFuncHelp() {
+	addDebugText("------------------------------");
+	addDebugText("Options:");
+	char tempTextEntry[255];
+	char hotkeyname[20];
+	getVKeyCodeString(hotkeyIdToggleDebug, hotkeyname, 20);
+	padCStringWithChar(hotkeyname, 20, ' ');
+	snprintf(tempTextEntry, 255, "%s- Toggle hiding this text display.", hotkeyname);
+	addDebugText(tempTextEntry);
+	getVKeyCodeString(hotkeyIdHelp, hotkeyname, 20);
+	padCStringWithChar(hotkeyname, 20, ' ');
+	snprintf(tempTextEntry, 255, "%s- Print and show this help text.", hotkeyname);
+	addDebugText(tempTextEntry);
+	getVKeyCodeString(hotkeyIdAlignWindow, hotkeyname, 20);
+	padCStringWithChar(hotkeyname, 20, ' ');
+	snprintf(tempTextEntry, 255, "%s- Align/Correct window positioning (into Borderless).", hotkeyname);
+	addDebugText(tempTextEntry);
+	getVKeyCodeString(hotkeyIdWindowMode, hotkeyname, 20);
+	padCStringWithChar(hotkeyname, 20, ' ');
+	snprintf(tempTextEntry, 255, "%s- Windowed/Borderless mode.", hotkeyname);
+	addDebugText(tempTextEntry);
+	addDebugText("F5      - Toggle online Coop mode.");
+	addDebugText("F10     - Fix in-game player camera from a white/black bad cutscene.");
+	addDebugText("Home    - Sight Possession Hack.");
+	addDebugText("Page Up - Set Lobby Privacy to OPEN.");
+	addDebugText("Page Dn - Set Lobby Privacy to INVITE ONLY.");
+	addDebugText("------------------------------");
+	setDebugTextDisplay(true);
+}
+
+const int hotkeyLen = 5;
+int* hotkeyId[hotkeyLen] = { &hotkeyIdHelp, &hotkeyIdToggleDebug, &hotkeyIdAlignWindow, &hotkeyIdWindowMode, &hotkeyIdTest };
+bool hotkeyPressed[hotkeyLen] = { false, false, false, false, false };
+void(*hotkeyFunc[hotkeyLen])(void) = { hotkeyFuncHelp, hotkeyFuncHideDebug, hotkeyFuncAlignWindow, hotkeyFuncWindowMode, hotkeyFuncTest };
+
 void mainLoop2() {
-	
-	if (1) {
-		if (!halo2WindowExists && halo2hWnd != NULL) {
-			halo2WindowExists = true;
-			if (getPlayerNumber() > 1) {
-				wchar_t titleOriginal[200];
-				wchar_t titleMod[200];
-				GetWindowText(halo2hWnd, titleOriginal, 200);
-				wsprintf(titleMod, L"%ls (P%d)", titleOriginal, getPlayerNumber());
-				SetWindowText(halo2hWnd, titleMod);
-			}
-			SetWindowLong(halo2hWnd, GWL_STYLE, GetWindowLong(halo2hWnd, GWL_STYLE) | WS_SIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+	if (!halo2WindowExists && halo2hWnd != NULL) {
+		halo2WindowExists = true;
+		if (getPlayerNumber() > 1) {
+			wchar_t titleOriginal[200];
+			wchar_t titleMod[200];
+			GetWindowText(halo2hWnd, titleOriginal, 200);
+			wsprintf(titleMod, L"%ls (P%d)", titleOriginal, getPlayerNumber());
+			SetWindowText(halo2hWnd, titleMod);
 		}
+		SetWindowLong(halo2hWnd, GWL_STYLE, GetWindowLong(halo2hWnd, GWL_STYLE) | WS_SIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+	}
+	if (GetFocus() == halo2hWnd || GetForegroundWindow() == halo2hWnd) {
 
-		if (GetAsyncKeyState(VK_F3) & 0x1) {
-		
-			addDebugText("------------------------------");
-			addDebugText("Options:");
-			addDebugText("~       - Toggle hiding this text display.");
-			addDebugText("F3      - Print and show this help text.");
-			addDebugText("F5      - Toggle online Coop mode.");
-			addDebugText("F8      - Enable/Disable Borderless.");
-			addDebugText("F10     - Fix in-game player camera from a white/black bad cutscene.");
-			addDebugText("Home    - Sight Possession Hack.");
-			addDebugText("Page Up - Set Lobby Privacy to OPEN.");
-			addDebugText("Page Dn - Set Lobby Privacy to INVITE ONLY.");
-			addDebugText("------------------------------");
-			setDebugTextDisplay(true);
-		}
-		if (GetAsyncKeyState(VK_OEM_3) & 0x1) {
-			setDebugTextDisplay(!getDebugTextDisplay());
-		}
-
-		//& 0x8000 is pressed
-		//& 0x1 Key just transitioned from released to pressed.
-		if (GetAsyncKeyState(VK_F8) & 0x1) {
-			wchar_t title[255];
-			wsprintf(title, L"Confirm Window Mode for Player %d", getPlayerNumber());
-			int msgboxID = MessageBox(halo2hWnd,
-				L"Go to Borderless Mode?\nNo = Windowed mode.\nWarning: Clicking the same option that is currently active can have weird side effects.",
-				title,
-				MB_ICONEXCLAMATION | MB_YESNOCANCEL
-			);
-			if (msgboxID == IDYES)
-			{
-				RECT rectScreen;
-				GetWindowRect(halo2hWnd, &rectScreen);
-				D3DVIEWPORT9 pViewport;
-				pDevice->GetViewport(&pViewport);
-				int width = pViewport.Width;
-				int height = pViewport.Height;
-				long borderPadX = 0;
-				long borderPadY = 0;
-				int excessY = GetSystemMetrics(SM_CYCAPTION);
-
-				WINDOWPLACEMENT place3;
-				GetWindowPlacement(halo2hWnd, &place3);
-				if ((place3.flags & WPF_RESTORETOMAXIMIZED) == WPF_RESTORETOMAXIMIZED) {
-					WINDOWPLACEMENT place2;
-					GetWindowPlacement(halo2hWnd, &place2);
-					place2.showCmd = (place2.showCmd | SW_SHOWNOACTIVATE) & ~SW_MAXIMIZE;
-					SetWindowPlacement(halo2hWnd, &place2);
-					borderPadX = GetSystemMetrics(SM_CXSIZEFRAME);
-					borderPadY = GetSystemMetrics(SM_CYSIZEFRAME);
-				}
-				GetWindowRect(halo2hWnd, &rectScreenOriginal);
-
-				SetWindowLong(halo2hWnd, GWL_STYLE, GetWindowLong(halo2hWnd, GWL_STYLE) & ~(WS_THICKFRAME | WS_SIZEBOX | WS_BORDER | WS_DLGFRAME));
-				//SetWindowLong(halo2hWnd, GWL_STYLE, GetWindowLong(halo2hWnd, GWL_EXSTYLE) & ~(WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE));
-				
-				SetWindowPos(halo2hWnd, NULL, rectScreen.left + borderPadX, rectScreen.top + borderPadY, width, height + excessY, 0);// SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
-
+		for (int i = 0; i < hotkeyLen; i++) {
+			//& 0x8000 is pressed
+			//& 0x1 Key just transitioned from released to pressed.
+			if (GetAsyncKeyState(*hotkeyId[i]) & 0x8000) {
+				hotkeyPressed[i] = true;
 			}
-			else if (msgboxID == IDNO) {
-				SetWindowLong(halo2hWnd, GWL_STYLE, GetWindowLong(halo2hWnd, GWL_STYLE) | WS_THICKFRAME | WS_BORDER | WS_DLGFRAME);
-				long width = rectScreenOriginal.right - rectScreenOriginal.left;// -GetSystemMetrics(SM_CXSIZEFRAME) - GetSystemMetrics(SM_CXSIZEFRAME);
-				long height = rectScreenOriginal.bottom - rectScreenOriginal.top;// -GetSystemMetrics(SM_CYSIZEFRAME) - GetSystemMetrics(SM_CYSIZEFRAME);
-				SetWindowPos(halo2hWnd, NULL, rectScreenOriginal.left, rectScreenOriginal.top, width, height, SWP_FRAMECHANGED);
+			else if (!(GetAsyncKeyState(*hotkeyId[i]) & 0x8000) && hotkeyPressed[i]) {
+				hotkeyPressed[i] = false;
+				hotkeyFunc[i]();
 			}
-
 		}
 	}
-	
 }
 
 int language_code = -1;
@@ -368,6 +488,11 @@ void ReadStartupOptions() {
 	bool est_language_code = false;
 	bool est_skip_intro = false;
 	bool est_disable_ingame_keyboard = false;
+	//Hotkeys
+	bool est_hotkey_help = false;
+	bool est_hotkey_toggle_debug = false;
+	bool est_hotkey_align_window = false;
+	bool est_hotkey_window_mode = false;
 
 	int flagged[256];
 	int flagged_pos = -1;
@@ -416,10 +541,54 @@ void ReadStartupOptions() {
 					est_disable_ingame_keyboard = true;
 				}
 			}
+			else if (strstr(string, "hotkey_help =")) {
+				int temp;
+				sscanf(string + strlen("hotkey_help ="), "%d", &temp);
+				if (est_hotkey_help || !(temp >= 0)) {
+					flagged[flagged_pos++] = findStartOfLine(fp, strlen(string));
+				}
+				else {
+					hotkeyIdHelp = temp;
+					est_hotkey_help = true;
+				}
+			}
+			else if (strstr(string, "hotkey_toggle_debug =")) {
+				int temp;
+				sscanf(string + strlen("hotkey_toggle_debug ="), "%d", &temp);
+				if (est_hotkey_toggle_debug || !(temp >= 0)) {
+					flagged[flagged_pos++] = findStartOfLine(fp, strlen(string));
+				}
+				else {
+					hotkeyIdToggleDebug = temp;
+					est_hotkey_toggle_debug = true;
+				}
+			}
+			else if (strstr(string, "hotkey_align_window =")) {
+				int temp;
+				sscanf(string + strlen("hotkey_align_window ="), "%d", &temp);
+				if (est_hotkey_align_window || !(temp >= 0)) {
+					flagged[flagged_pos++] = findStartOfLine(fp, strlen(string));
+				}
+				else {
+					hotkeyIdAlignWindow = temp;
+					est_hotkey_align_window = true;
+				}
+			}
+			else if (strstr(string, "hotkey_window_mode =")) {
+				int temp;
+				sscanf(string + strlen("hotkey_window_mode ="), "%d", &temp);
+				if (est_hotkey_window_mode || !(temp >= 0)) {
+					flagged[flagged_pos++] = findStartOfLine(fp, strlen(string));
+				}
+				else {
+					hotkeyIdWindowMode = temp;
+					est_hotkey_window_mode = true;
+				}
+			}
 		}
 		fclose(fp);
 		fp = NULL;
-		if (!flagged_pos && !(est_language_code && est_skip_intro && est_disable_ingame_keyboard)) {
+		if (!flagged_pos && !(est_language_code && est_skip_intro && est_disable_ingame_keyboard && est_hotkey_help && est_hotkey_toggle_debug && est_hotkey_align_window && est_hotkey_window_mode)) {
 			flagged_pos = -2;
 		}
 	}
@@ -453,6 +622,11 @@ void ReadStartupOptions() {
 				fputs("\n# 0 - Normal Game Controls", fp);
 				fputs("\n# 1 - Disables ONLY Keyboard when in-game & allows controllers when game is not in focus", fp);
 				fputs("\n\n", fp);
+				fputs("# hotkey_... Options:", fp);
+				fputs("\n# The number used is the keyboard Virtual-Key (VK) Code in base-10 integer form.", fp);
+				fputs("\n# The codes in hexadecimal (base-16) form can be found here:", fp);
+				fputs("\n# https://msdn.microsoft.com/en-us/library/windows/desktop/dd375731(v=vs.85).aspx", fp);
+				fputs("\n\n", fp);
 			}
 			else if (flagged_pos > 0) {
 				for (int i = flagged_pos - 1; i >= 0; i--) {
@@ -471,6 +645,30 @@ void ReadStartupOptions() {
 				char disable_ingame_keyboard_entry[40];
 				sprintf(disable_ingame_keyboard_entry, "\ndisable_ingame_keyboard = %d", (bool)(getPlayerNumber() - 1));
 				fputs(disable_ingame_keyboard_entry, fp);
+			}
+			if (!est_hotkey_help) {
+				char hotkeyText[60];
+				sprintf(hotkeyText, "\nhotkey_help = %d #", hotkeyIdHelp);
+				getVKeyCodeString(hotkeyIdHelp, hotkeyText + strlen(hotkeyText), 20);
+				fputs(hotkeyText, fp);
+			}
+			if (!est_hotkey_toggle_debug) {
+				char hotkeyText[60];
+				sprintf(hotkeyText, "\nhotkey_toggle_debug = %d #", hotkeyIdToggleDebug);
+				getVKeyCodeString(hotkeyIdToggleDebug, hotkeyText + strlen(hotkeyText), 20);
+				fputs(hotkeyText, fp);
+			}
+			if (!est_hotkey_align_window) {
+				char hotkeyText[60];
+				sprintf(hotkeyText, "\nhotkey_align_window = %d #", hotkeyIdAlignWindow);
+				getVKeyCodeString(hotkeyIdAlignWindow, hotkeyText + strlen(hotkeyText), 20);
+				fputs(hotkeyText, fp);
+			}
+			if (!est_hotkey_window_mode) {
+				char hotkeyText[60];
+				sprintf(hotkeyText, "\nhotkey_window_mode = %d #", hotkeyIdWindowMode);
+				getVKeyCodeString(hotkeyIdWindowMode, hotkeyText + strlen(hotkeyText), 20);
+				fputs(hotkeyText, fp);
 			}
 			fclose(fp);
 		}
