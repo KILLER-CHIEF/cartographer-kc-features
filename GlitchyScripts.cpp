@@ -266,7 +266,7 @@ VOID CallWgit() {
 }
 
 void setBorderless(int originX, int originY, int width, int height) {
-	SetWindowLong(halo2hWnd, GWL_STYLE, GetWindowLong(halo2hWnd, GWL_STYLE) & ~(WS_THICKFRAME | WS_SIZEBOX | WS_BORDER | WS_DLGFRAME));
+	SetWindowLong(halo2hWnd, GWL_STYLE, GetWindowLong(halo2hWnd, GWL_STYLE) & ~(WS_THICKFRAME | WS_BORDER | WS_DLGFRAME));// | WS_SIZEBOX
 	//SetWindowLong(halo2hWnd, GWL_STYLE, GetWindowLong(halo2hWnd, GWL_EXSTYLE) & ~(WS_EX_DLGMODALFRAME | WS_EX_CLIENTEDGE | WS_EX_STATICEDGE));
 
 	SetWindowPos(halo2hWnd, NULL, originX, originY, width, height, 0);// SWP_FRAMECHANGED | SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOOWNERZORDER);
@@ -318,15 +318,15 @@ void hotkeyFuncAlignWindow() {
 
 int hotkeyIdWindowMode = VK_F8;
 void hotkeyFuncWindowMode() {
-	wchar_t title[255];
+	/*wchar_t title[255];
 	wsprintf(title, L"Confirm Window Mode for Player %d", getPlayerNumber());
 	int msgboxID = MessageBox(halo2hWnd,
 		L"Go to Borderless Mode?\nNo = Windowed mode.\nWarning: Clicking the same option that is currently active can have weird side effects.",
 		title,
 		MB_ICONEXCLAMATION | MB_YESNOCANCEL
-	);
-	if (msgboxID == IDYES)
-	{
+	);*/
+	//if (msgboxID == IDYES) {}
+	if (GetWindowLong(halo2hWnd, GWL_STYLE) & (WS_THICKFRAME | WS_BORDER | WS_DLGFRAME)) {
 		RECT rectScreen;
 		GetWindowRect(halo2hWnd, &rectScreen);
 		D3DVIEWPORT9 pViewport;
@@ -352,7 +352,8 @@ void hotkeyFuncWindowMode() {
 		setBorderless(rectScreen.left + borderPadX, rectScreen.top + borderPadY, width, height + excessY);
 
 	}
-	else if (msgboxID == IDNO) {
+	else {
+	//else if (msgboxID == IDNO) {
 		long width = rectScreenOriginal.right - rectScreenOriginal.left;// -GetSystemMetrics(SM_CXSIZEFRAME) - GetSystemMetrics(SM_CXSIZEFRAME);
 		long height = rectScreenOriginal.bottom - rectScreenOriginal.top;// -GetSystemMetrics(SM_CYSIZEFRAME) - GetSystemMetrics(SM_CYSIZEFRAME);
 		setWindowed(rectScreenOriginal.left, rectScreenOriginal.top, width, height);
@@ -387,7 +388,7 @@ void hotkeyFuncHelp() {
 	addDebugText(tempTextEntry);
 	getVKeyCodeString(hotkeyIdWindowMode, hotkeyname, 20);
 	padCStringWithChar(hotkeyname, 20, ' ');
-	snprintf(tempTextEntry, 255, "%s- Windowed/Borderless mode.", hotkeyname);
+	snprintf(tempTextEntry, 255, "%s- Toggle Windowed/Borderless mode.", hotkeyname);
 	addDebugText(tempTextEntry);
 	addDebugText("F5      - Toggle online Coop mode.");
 	addDebugText("F10     - Fix in-game player camera from a white/black bad cutscene.");
