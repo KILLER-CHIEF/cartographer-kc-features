@@ -1062,7 +1062,6 @@ typedef void*(__stdcall *tload_main_menu_six_opt)(void* thisptr, int a2, int a3,
 tload_main_menu_six_opt pload_main_menu_six_opt;
 
 bool once3 = false;
-
 void* __stdcall LoadMainMenuSixOpt(void* thisptr, int a2, int a3, int a4) {
 	if (!once3) {
 		once3 = true;
@@ -1071,6 +1070,25 @@ void* __stdcall LoadMainMenuSixOpt(void* thisptr, int a2, int a3, int a4) {
 	}
 	//void* thisptr = 
 	pload_main_menu_six_opt(thisptr, a2, a3, a4);
+	return thisptr;
+}
+
+typedef void*(__stdcall *tload_wgit)(void* thisptr, int a2, int a3, int a4, unsigned short a5);
+tload_wgit pload_wgit;
+
+void* __stdcall LoadWgit(void* thisptr, int a2, int a3, int a4, unsigned short a5) {
+	int wgit = a2;
+
+	//char NotificationPlayerText[20];
+	//sprintf(NotificationPlayerText, "WGIT ID: %d", a2);
+	//MessageBoxA(NULL, NotificationPlayerText, "WGITness", MB_OK);
+
+	//Removed the ESRB warning after intro video (only occurs for English Lang).
+	if (wgit == 292) {
+		wgit = -1;
+	}
+	//void* thisptr = 
+	pload_wgit(thisptr, wgit, a3, a4, a5);
 	return thisptr;
 }
 
@@ -1084,6 +1102,9 @@ void H2MOD::ApplyHooks() {
 
 		pload_main_menu_six_opt = (tload_main_menu_six_opt)DetourClassFunc((BYTE*)this->GetBase() + 0xB6CA, (BYTE*)LoadMainMenuSixOpt, 13);
 		VirtualProtect(pload_main_menu_six_opt, 4, PAGE_EXECUTE_READWRITE, &dwBack);
+
+		pload_wgit = (tload_wgit)DetourClassFunc((BYTE*)this->GetBase() + 0x2106A2, (BYTE*)LoadWgit, 13);
+		VirtualProtect(pload_wgit, 4, PAGE_EXECUTE_READWRITE, &dwBack);
 
 		pjoin_game = (tjoin_game)DetourClassFunc((BYTE*)this->GetBase() + 0x1CDADE, (BYTE*)join_game, 13);
 		VirtualProtect(pjoin_game, 4, PAGE_EXECUTE_READWRITE, &dwBack);
