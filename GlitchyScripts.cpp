@@ -257,7 +257,8 @@ VOID CallWgit() {
 	int(__thiscall*WgitFinalize)(void*);
 	WgitFinalize = (int(__thiscall*)(void*))((char*)MemAddrBase + 0x20B11E);
 	//Now Calling Menus.
-	int WgitScreenfunctionPtr = (int)((char*)MemAddrBase + 0xE757);//PCR
+	int WgitScreenfunctionPtr = (int)((char*)MemAddrBase + 0x10CCDE7);//Pause
+	//int WgitScreenfunctionPtr = (int)((char*)MemAddrBase + 0xE757);//PCR
 	WgitInitialize(tmp);
 	WgitLoad(tmp, 1, 3, 4, WgitScreenfunctionPtr);
 	WgitFinalize(tmp);
@@ -720,8 +721,8 @@ void ProcessStartup() {
 		}
 
 		if (skip_intro) {
-			BYTE assmIntroSkip[] = { 0x00 };
-			OverwriteAssembly((BYTE*)MemAddrBase + 0x221BCB, assmIntroSkip, 1);
+			BYTE assmIntroSkip[] = { 0x3F };
+			OverwriteAssembly((BYTE*)MemAddrBase + 0x221C0E, assmIntroSkip, 1);
 		}
 
 		if (!skip_intro && IntroHQ) {
